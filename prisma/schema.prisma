@@ -43,12 +43,12 @@ model NanoleafUser {
 }
 
 model NanoleafAuthToken {
-  id              String             @id @default(uuid())
-  authToken       String             @unique
-  nanoLeafPanelId String
-  nanoLeafPanel   NanoleafProperties @relation(fields: [nanoLeafPanelId], references: [id])
-  nanoleafUserId  String?
-  nanoleafUser    NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
+  id             String             @id @default(uuid())
+  authToken      String             @unique
+  panelId        String
+  panel          NanoleafProperties @relation(fields: [panelId], references: [id])
+  nanoleafUserId String?
+  nanoleafUser   NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
 }
 
 model NanoleafProperties {
@@ -65,40 +65,40 @@ model NanoleafProperties {
 }
 
 model NanoleafState {
-  id                   String              @id @default(uuid())
-  on                   NanoleafStateValue? @relation("on")
-  brightness           NanoleafStateValue? @relation("brightness")
-  hue                  NanoleafStateValue? @relation("hue")
-  sat                  NanoleafStateValue? @relation("sat")
-  ct                   NanoleafStateValue? @relation("ct")
-  colorMode            String
-  nanoLeafPropertiesId String              @unique
-  nanoLeafProperties   NanoleafProperties  @relation(fields: [nanoLeafPropertiesId], references: [id])
+  id           String              @id @default(uuid())
+  on           NanoleafStateValue? @relation("on")
+  brightness   NanoleafStateValue? @relation("brightness")
+  hue          NanoleafStateValue? @relation("hue")
+  sat          NanoleafStateValue? @relation("sat")
+  ct           NanoleafStateValue? @relation("ct")
+  colorMode    String
+  propertiesId String              @unique
+  properties   NanoleafProperties  @relation(fields: [propertiesId], references: [id])
 }
 
 model NanoleafStateValue {
-  value                   Boolean
-  max                     Int?
-  min                     Int?
-  nanoLeafStateId         String         @unique
-  nanoLeafStateOn         NanoleafState? @relation("on", fields: [nanoLeafStateId], references: [id])
-  nanoLeafStateBrightness NanoleafState? @relation("brightness", fields: [nanoLeafStateId], references: [id])
-  nanoLeafStateHue        NanoleafState? @relation("hue", fields: [nanoLeafStateId], references: [id])
-  nanoLeafStateSat        NanoleafState? @relation("sat", fields: [nanoLeafStateId], references: [id])
-  nanoLeafStateCt         NanoleafState? @relation("ct", fields: [nanoLeafStateId], references: [id])
+  value           Boolean
+  max             Int?
+  min             Int?
+  stateId         String         @unique
+  stateOn         NanoleafState? @relation("on", fields: [stateId], references: [id])
+  stateBrightness NanoleafState? @relation("brightness", fields: [stateId], references: [id])
+  stateHue        NanoleafState? @relation("hue", fields: [stateId], references: [id])
+  stateSat        NanoleafState? @relation("sat", fields: [stateId], references: [id])
+  stateCt         NanoleafState? @relation("ct", fields: [stateId], references: [id])
 }
 
 model NanoleafEffects {
-  select               String
-  effectsList          String[]
-  nanoLeafPropertiesId String             @unique
-  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
+  select       String
+  effectsList  String[]
+  propertiesId String             @unique
+  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
 }
 
 model NanoleafPanelLayout {
-  id                   String             @id @default(uuid())
-  nanoLeafPropertiesId String             @unique
-  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
+  id           String             @id @default(uuid())
+  propertiesId String             @unique
+  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
 }
 
 model NanoleafLayout {
@@ -110,23 +110,23 @@ model NanoleafLayout {
 }
 
 model NanoleafPosition {
-  id               String          @id @default(uuid())
-  panelId          Int?
-  x                Int
-  y                Int
-  o                Int
-  nanoLeafLayoutId String?         @unique
-  nanoLeafLayout   NanoleafLayout? @relation(fields: [nanoLeafLayoutId], references: [id])
-  nanoLeafRhythmId String?         @unique
-  nanoLeafRhythm   NanoleafRhythm? @relation(fields: [nanoLeafRhythmId], references: [id])
+  id       String          @id @default(uuid())
+  panelId  Int?
+  x        Int
+  y        Int
+  o        Int
+  layoutId String?         @unique
+  layout   NanoleafLayout? @relation(fields: [layoutId], references: [id])
+  rhythmId String?         @unique
+  rhythm   NanoleafRhythm? @relation(fields: [rhythmId], references: [id])
 }
 
 model NanoleafGlobalOrientationValue {
   value            Boolean
   max              Int?
   min              Int?
-  nanoLeafLayoutId String         @unique
-  nanoLeafLayout   NanoleafLayout @relation(fields: [nanoLeafLayoutId], references: [id])
+  layoutId String         @unique
+  layout   NanoleafLayout @relation(fields: [layoutId], references: [id])
 }
 
 model NanoleafRhythm {
@@ -139,8 +139,8 @@ model NanoleafRhythm {
   auxAvailable         Boolean?
   rhythmMode           Float?
   rhythmPos            NanoleafPosition?
-  nanoLeafPropertiesId String             @unique
-  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
+  propertiesId String             @unique
+  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
 }
 
 //* Lifx
