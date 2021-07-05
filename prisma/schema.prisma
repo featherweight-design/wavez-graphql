@@ -43,12 +43,12 @@ model NanoleafUser {
 }
 
 model NanoleafAuthToken {
-  id             String             @id @default(uuid())
-  authToken      String             @unique
-  panelId        String
-  panel          NanoleafProperties @relation(fields: [panelId], references: [id])
+  id             String              @id @default(uuid())
+  authToken      String              @unique
+  panelId        String?
+  panel          NanoleafProperties? @relation(fields: [panelId], references: [id])
   nanoleafUserId String?
-  nanoleafUser   NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
+  nanoleafUser   NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
 }
 
 model NanoleafProperties {
@@ -122,25 +122,25 @@ model NanoleafPosition {
 }
 
 model NanoleafGlobalOrientationValue {
-  value            Boolean
-  max              Int?
-  min              Int?
+  value    Boolean
+  max      Int?
+  min      Int?
   layoutId String         @unique
   layout   NanoleafLayout @relation(fields: [layoutId], references: [id])
 }
 
 model NanoleafRhythm {
-  id                   String             @id @default(uuid())
-  rhythmConnected      Boolean
-  rhytmActive          Boolean?
-  rhythmId             Int?
-  hardwareVersion      String?
-  firmwareVersion      String?
-  auxAvailable         Boolean?
-  rhythmMode           Float?
-  rhythmPos            NanoleafPosition?
-  propertiesId String             @unique
-  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
+  id              String             @id @default(uuid())
+  rhythmConnected Boolean
+  rhytmActive     Boolean?
+  rhythmId        Int?
+  hardwareVersion String?
+  firmwareVersion String?
+  auxAvailable    Boolean?
+  rhythmMode      Float?
+  rhythmPos       NanoleafPosition?
+  propertiesId    String             @unique
+  properties      NanoleafProperties @relation(fields: [propertiesId], references: [id])
 }
 
 //* Lifx
