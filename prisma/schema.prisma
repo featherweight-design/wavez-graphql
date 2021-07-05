@@ -29,8 +29,8 @@ model Device {
   name       String             @unique
   mac        String             @unique
   type       DeviceType
-  user       User               @relation(fields: [userId], references: [id])
   userId     String             @unique
+  user       User               @relation(fields: [userId], references: [id])
   properties DevicePropertyType
 }
 
@@ -38,17 +38,17 @@ model Device {
 model NanoleafUser {
   id         String              @id @default(uuid())
   authTokens NanoleafAuthToken[]
-  user       User                @relation(fields: [userId], references: [id])
   userId     String              @unique
+  user       User                @relation(fields: [userId], references: [id])
 }
 
 model NanoleafAuthToken {
   id              String             @id @default(uuid())
   authToken       String             @unique
-  nanoLeafPanel   NanoleafProperties @relation(fields: [nanoLeafPanelId], references: [id])
   nanoLeafPanelId String
-  nanoleafUser    NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
+  nanoLeafPanel   NanoleafProperties @relation(fields: [nanoLeafPanelId], references: [id])
   nanoleafUserId  String?
+  nanoleafUser    NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
 }
 
 model NanoleafProperties {
@@ -72,8 +72,8 @@ model NanoleafState {
   sat                  NanoleafStateValue? @relation("sat")
   ct                   NanoleafStateValue? @relation("ct")
   colorMode            String
-  nanoLeafProperties   NanoleafProperties  @relation(fields: [nanoLeafPropertiesId], references: [id])
   nanoLeafPropertiesId String              @unique
+  nanoLeafProperties   NanoleafProperties  @relation(fields: [nanoLeafPropertiesId], references: [id])
 }
 
 model NanoleafStateValue {
@@ -91,14 +91,14 @@ model NanoleafStateValue {
 model NanoleafEffects {
   select               String
   effectsList          String[]
-  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
   nanoLeafPropertiesId String             @unique
+  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
 }
 
 model NanoleafPanelLayout {
   id                   String             @id @default(uuid())
-  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
   nanoLeafPropertiesId String             @unique
+  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
 }
 
 model NanoleafLayout {
@@ -115,18 +115,18 @@ model NanoleafPosition {
   x                Int
   y                Int
   o                Int
-  nanoLeafLayout   NanoleafLayout? @relation(fields: [nanoLeafLayoutId], references: [id])
   nanoLeafLayoutId String?         @unique
-  nanoLeafRhythm   NanoleafRhythm? @relation(fields: [nanoLeafRhythmId], references: [id])
+  nanoLeafLayout   NanoleafLayout? @relation(fields: [nanoLeafLayoutId], references: [id])
   nanoLeafRhythmId String?         @unique
+  nanoLeafRhythm   NanoleafRhythm? @relation(fields: [nanoLeafRhythmId], references: [id])
 }
 
 model NanoleafGlobalOrientationValue {
   value            Boolean
   max              Int?
   min              Int?
-  nanoLeafLayout   NanoleafLayout @relation(fields: [nanoLeafLayoutId], references: [id])
   nanoLeafLayoutId String         @unique
+  nanoLeafLayout   NanoleafLayout @relation(fields: [nanoLeafLayoutId], references: [id])
 }
 
 model NanoleafRhythm {
@@ -139,8 +139,8 @@ model NanoleafRhythm {
   auxAvailable         Boolean?
   rhythmMode           Float?
   rhythmPos            NanoleafPosition?
-  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
   nanoLeafPropertiesId String             @unique
+  nanoLeafProperties   NanoleafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
 }
 
 //* Lifx
