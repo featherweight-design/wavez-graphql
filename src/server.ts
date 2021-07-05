@@ -5,13 +5,19 @@ import { buildSchemaSync } from "type-graphql";
 
 import { Context } from "types";
 import { DeviceResolver } from "device";
+import { NanoleafAuthTokenResolver, NanoleafUserResolver } from "nanoleaf";
 import { UserResolver } from "user";
 
 const PORT = 4000;
 const prisma = new PrismaClient();
 
 const schema = buildSchemaSync({
-  resolvers: [DeviceResolver, UserResolver],
+  resolvers: [
+    DeviceResolver,
+    NanoleafAuthTokenResolver,
+    NanoleafUserResolver,
+    UserResolver,
+  ],
 });
 const server = new ApolloServer({
   schema,
