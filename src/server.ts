@@ -4,13 +4,14 @@ import { ApolloServer } from "apollo-server";
 import { buildSchemaSync } from "type-graphql";
 
 import { Context } from "types";
+import { DeviceResolver } from "device";
 import { UserResolver } from "user";
 
 const PORT = 4000;
 const prisma = new PrismaClient();
 
 const schema = buildSchemaSync({
-  resolvers: [UserResolver],
+  resolvers: [DeviceResolver, UserResolver],
 });
 const server = new ApolloServer({
   schema,
