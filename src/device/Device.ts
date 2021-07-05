@@ -1,27 +1,33 @@
 import { Field, ID, ObjectType } from "type-graphql";
+import { DeviceType } from "@prisma/client";
 
-import { DeviceType } from "types";
 import { User } from "user";
 
 @ObjectType()
-class Device {
-  @Field(() => ID)
-  id: string;
-
+export class WifiDevice {
   @Field()
-  name: string;
+  ip: string;
 
   @Field()
   mac: string;
 
-  @Field(() => DeviceType, { nullable: true })
-  type?: DeviceType | null;
+  @Field()
+  name: string;
+}
 
-  @Field(() => User, { nullable: true })
-  user?: User | null;
+@ObjectType()
+class Device extends WifiDevice {
+  @Field(() => ID)
+  id: string;
 
-  @Field(() => String, { nullable: true })
-  userId?: string | null;
+  @Field()
+  type: DeviceType;
+
+  @Field()
+  user: User;
+
+  @Field()
+  userId: string;
 }
 
 export default Device;
