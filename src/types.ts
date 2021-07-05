@@ -10,3 +10,7 @@ export enum DeviceMacSubstringByType {
   LIFX = "d0:73:d5",
   HUE = "ECB5",
 }
+
+export interface NanoLeafAuthenticationResponse {
+  auth_token: string;
+}
