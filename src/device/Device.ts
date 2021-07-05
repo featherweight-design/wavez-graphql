@@ -1,5 +1,5 @@
-import { Field, ID, ObjectType } from "type-graphql";
 import { DeviceType } from "@prisma/client";
+import { Field, ID, ObjectType } from "type-graphql";
 
 import { User } from "user";
 
