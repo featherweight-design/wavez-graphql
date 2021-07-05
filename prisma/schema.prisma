@@ -47,7 +47,7 @@ model NanoleafAuthToken {
   authToken       String             @unique
   nanoLeafPanel   NanoleafProperties @relation(fields: [nanoLeafPanelId], references: [id])
   nanoLeafPanelId String
-  NanoleafUser    NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
+  nanoleafUser    NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
   nanoleafUserId  String?
 }
 
