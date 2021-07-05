@@ -46,8 +46,8 @@ model NanoleafAuthToken {
   authToken       String             @unique
   nanoLeafPanel   NanoleafProperties @relation(fields: [nanoLeafPanelId], references: [id])
   nanoLeafPanelId String
-  NanoleafUser    NanoleafUser?      @relation(fields: [nanoLeafUserId], references: [id])
-  nanoLeafUserId  String?
+  NanoleafUser    NanoleafUser?      @relation(fields: [nanoleafUserId], references: [id])
+  nanoleafUserId  String?
 }
 
 model NanoleafProperties {
@@ -157,6 +157,6 @@ model User {
   id           String        @id @default(uuid())
   email        String        @unique
   name         String?
-  nanoLeafUser NanoleafUser?
+  nanoleafUser NanoleafUser?
   devices      Device[]
 }
