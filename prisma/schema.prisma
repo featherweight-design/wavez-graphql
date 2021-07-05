@@ -24,13 +24,13 @@ enum DevicePropertyType {
 }
 
 model Device {
-  id         String              @id @default(uuid())
-  name       String              @unique
-  mac        String              @unique
-  type       DeviceType?
-  user       User?               @relation(fields: [userId], references: [id])
-  userId     String?             @unique
-  properties DevicePropertyType?
+  id         String             @id @default(uuid())
+  name       String             @unique
+  mac        String             @unique
+  type       DeviceType
+  user       User               @relation(fields: [userId], references: [id])
+  userId     String             @unique
+  properties DevicePropertyType
 }
 
 //* Nanoleaf
