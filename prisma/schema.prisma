@@ -1,0 +1,162 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+//* Device
+enum DeviceType {
+  NANOLEAF
+  LIFX
+  HUE
+}
+
+enum DevicePropertyType {
+  NanoLeafProperties
+  LifxProperties
+  HueProperties
+}
+
+model Device {
+  id         String             @id @default(uuid())
+  name       String             @unique
+  mac        String             @unique
+  type       DeviceType
+  user       User               @relation(fields: [userId], references: [id])
+  userId     String             @unique
+  properties DevicePropertyType
+}
+
+//* Nanoleaf
+model NanoLeafUser {
+  id         String              @id @default(uuid())
+  authTokens NanoLeafAuthToken[]
+  user       User                @relation(fields: [userId], references: [id])
+  userId     String              @unique
+}
+
+model NanoLeafAuthToken {
+  id              String             @id @default(uuid())
+  authToken       String             @unique
+  nanoLeafPanel   NanoLeafProperties @relation(fields: [nanoLeafPanelId], references: [id])
+  nanoLeafPanelId String
+  NanoLeafUser    NanoLeafUser?      @relation(fields: [nanoLeafUserId], references: [id])
+  nanoLeafUserId  String?
+}
+
+model NanoLeafProperties {
+  id              String               @id @default(uuid())
+  name            String
+  serialNo        String               @unique
+  firmwareVersion String
+  model           String
+  state           NanoLeafState?
+  effects         NanoLeafEffects?
+  panelLayout     NanoleafPanelLayout?
+  rhythm          NanoleafRhythm?
+  authToken       NanoLeafAuthToken?
+}
+
+model NanoLeafState {
+  id                   String              @id @default(uuid())
+  on                   NanoLeafStateValue? @relation("on")
+  brightness           NanoLeafStateValue? @relation("brightness")
+  hue                  NanoLeafStateValue? @relation("hue")
+  sat                  NanoLeafStateValue? @relation("sat")
+  ct                   NanoLeafStateValue? @relation("ct")
+  colorMode            String
+  nanoLeafProperties   NanoLeafProperties  @relation(fields: [nanoLeafPropertiesId], references: [id])
+  nanoLeafPropertiesId String              @unique
+}
+
+model NanoLeafStateValue {
+  value                   Boolean
+  max                     Int?
+  min                     Int?
+  nanoLeafStateId         String         @unique
+  nanoLeafStateOn         NanoLeafState? @relation("on", fields: [nanoLeafStateId], references: [id])
+  nanoLeafStateBrightness NanoLeafState? @relation("brightness", fields: [nanoLeafStateId], references: [id])
+  nanoLeafStateHue        NanoLeafState? @relation("hue", fields: [nanoLeafStateId], references: [id])
+  nanoLeafStateSat        NanoLeafState? @relation("sat", fields: [nanoLeafStateId], references: [id])
+  nanoLeafStateCt         NanoLeafState? @relation("ct", fields: [nanoLeafStateId], references: [id])
+}
+
+model NanoLeafEffects {
+  select               String
+  effectsList          String[]
+  nanoLeafProperties   NanoLeafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
+  nanoLeafPropertiesId String             @unique
+}
+
+model NanoleafPanelLayout {
+  id                   String             @id @default(uuid())
+  nanoLeafProperties   NanoLeafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
+  nanoLeafPropertiesId String             @unique
+}
+
+model NanoleafLayout {
+  id                String                          @id @default(uuid())
+  numPanels         Int
+  sideLength        Int
+  positionData      NanoleafPosition?
+  globalOrientation NanoleafGlobalOrientationValue?
+}
+
+model NanoleafPosition {
+  id               String          @id @default(uuid())
+  panelId          Int?
+  x                Int
+  y                Int
+  o                Int
+  nanoLeafLayout   NanoleafLayout? @relation(fields: [nanoLeafLayoutId], references: [id])
+  nanoLeafLayoutId String?         @unique
+  nanoLeafRhythm   NanoleafRhythm? @relation(fields: [nanoLeafRhythmId], references: [id])
+  nanoLeafRhythmId String?         @unique
+}
+
+model NanoleafGlobalOrientationValue {
+  value            Boolean
+  max              Int?
+  min              Int?
+  nanoLeafLayout   NanoleafLayout @relation(fields: [nanoLeafLayoutId], references: [id])
+  nanoLeafLayoutId String         @unique
+}
+
+model NanoleafRhythm {
+  id                   String             @id @default(uuid())
+  rhythmConnected      Boolean
+  rhytmActive          Boolean?
+  rhythmId             Int?
+  hardwareVersion      String?
+  firmwareVersion      String?
+  auxAvailable         Boolean?
+  rhythmMode           Float?
+  rhythmPos            NanoleafPosition?
+  nanoLeafProperties   NanoLeafProperties @relation(fields: [nanoLeafPropertiesId], references: [id])
+  nanoLeafPropertiesId String             @unique
+}
+
+//* Lifx
+model LifxProperties {
+  id String @id @default(uuid())
+}
+
+//* Hue
+model HueProperties {
+  id String @id @default(uuid())
+}
+
+//* User
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  nanoLeafUser NanoLeafUser?
+  devices      Device[]
+}
