@@ -2,7 +2,22 @@ import { Field, ID, ObjectType } from "type-graphql";
 import { User } from "user";
 
 @ObjectType()
-export class NanoeafPanel {
+class NanoleafUser {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => [NanoleafAuthToken])
+  authTokens: NanoleafAuthToken[];
+
+  @Field()
+  userId: string;
+
+  @Field(() => User)
+  user: User;
+}
+
+@ObjectType()
+class NanoleafPanel {
   @Field(() => ID)
   id: string;
 
@@ -20,7 +35,7 @@ export class NanoeafPanel {
 }
 
 @ObjectType()
-export class NanoleafAuthToken {
+class NanoleafAuthToken {
   @Field(() => ID)
   id: string;
 
@@ -30,8 +45,8 @@ export class NanoleafAuthToken {
   @Field(() => String, { nullable: true })
   panelId?: string;
 
-  @Field(() => NanoeafPanel, { nullable: true })
-  panel: NanoeafPanel | null;
+  @Field(() => NanoleafPanel, { nullable: true })
+  panel: NanoleafPanel | null;
 
   @Field(() => String, { nullable: true })
   nanoleafUserId?: string;
@@ -40,19 +55,4 @@ export class NanoleafAuthToken {
   nanoleafUser: NanoleafUser;
 }
 
-@ObjectType()
-class NanoleafUser {
-  @Field(() => ID)
-  id: string;
-
-  @Field(() => [NanoleafAuthToken])
-  authtokens: NanoleafAuthToken[];
-
-  @Field()
-  userId: string;
-
-  @Field(() => User)
-  user: User;
-}
-
-export default NanoleafUser;
+export { NanoleafUser, NanoleafAuthToken, NanoleafPanel };
