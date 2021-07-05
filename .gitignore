@@ -28,6 +28,7 @@ screenshots
 .env.production.local
 .node-version
 .vscode
+scratchpad.*
 
 npm-debug.log*
 yarn-debug.log*
