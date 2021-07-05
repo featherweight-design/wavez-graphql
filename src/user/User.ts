@@ -9,7 +9,7 @@ class User {
   email: string;
 
   @Field(() => String, { nullable: true })
-  name: string;
+  name?: string | null;
 
   // @Field(() => NanoleafUser, { nullable: true })
   // nanoleafUser?: NanoleafUser;
