@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -rf node_modules yarn.lock && yarn install",
-    "start": "ts-node-dev --respawn -r tsconfig-paths/register src/index.ts",
+    "start": "ts-node-dev --respawn -r tsconfig-paths/register src/server.ts",
     "generate": "npx prisma generate --schema src/prisma/schema.prisma"
   },
   "keywords": [],
