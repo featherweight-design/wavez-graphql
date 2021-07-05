@@ -25,6 +25,7 @@ enum DevicePropertyType {
 
 model Device {
   id         String             @id @default(uuid())
+  ip         String             @unique
   name       String             @unique
   mac        String             @unique
   type       DeviceType
