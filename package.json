@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^16.0.0",
+    "@types/node-fetch": "^2.5.10",
     "prisma": "^2.26.0",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.9.0",
