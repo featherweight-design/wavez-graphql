@@ -17,21 +17,22 @@ enum DeviceType {
   HUE
 }
 
-enum DevicePropertyType {
-  NanoleafProperties
-  LifxProperties
-  HueProperties
-}
-
 model Device {
-  id         String             @id @default(uuid())
-  ip         String             @unique
-  name       String             @unique
-  mac        String             @unique
-  type       DeviceType
-  userId     String             @unique
-  user       User               @relation(fields: [userId], references: [id])
-  properties DevicePropertyType
+  id                   String              @id @default(uuid())
+  ip                   String              @unique
+  name                 String              @unique
+  mac                  String              @unique
+  type                 DeviceType
+  userId               String              @unique
+  user                 User                @relation(fields: [userId], references: [id])
+  nanoleafPropertiesId String?
+  naoleafProperties    NanoleafProperties? @relation(fields: [nanoleafPropertiesId], references: [id])
+  lifxPropertiesId     String?
+  lifxProperties       LifxProperties?     @relation(fields: [lifxPropertiesId], references: [id])
+  huePropertiesId      String?
+  hueProperties        HueProperties?      @relation(fields: [huePropertiesId], references: [id])
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 }
 
 //* Nanoleaf
@@ -40,6 +41,8 @@ model NanoleafUser {
   authTokens NanoleafAuthToken[]
   userId     String              @unique
   user       User                @relation(fields: [userId], references: [id])
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
 }
 
 model NanoleafAuthToken {
@@ -49,6 +52,8 @@ model NanoleafAuthToken {
   panel          NanoleafProperties? @relation(fields: [panelId], references: [id])
   nanoleafUserId String?
   nanoleafUser   NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 }
 
 model NanoleafProperties {
@@ -62,6 +67,9 @@ model NanoleafProperties {
   panelLayout     NanoleafPanelLayout?
   rhythm          NanoleafRhythm?
   authToken       NanoleafAuthToken?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  Device          Device[]
 }
 
 model NanoleafState {
@@ -145,12 +153,14 @@ model NanoleafRhythm {
 
 //* Lifx
 model LifxProperties {
-  id String @id @default(uuid())
+  id     String   @id @default(uuid())
+  Device Device[]
 }
 
 //* Hue
 model HueProperties {
-  id String @id @default(uuid())
+  id     String   @id @default(uuid())
+  Device Device[]
 }
 
 //* User
@@ -160,4 +170,6 @@ model User {
   name         String?
   nanoleafUser NanoleafUser?
   devices      Device[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
