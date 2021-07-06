@@ -23,7 +23,7 @@ model Device {
   name                 String              @unique
   mac                  String              @unique
   type                 DeviceType
-  userId               String              @unique
+  userId               String
   user                 User                @relation(fields: [userId], references: [id])
   nanoleafPropertiesId String?
   naoleafProperties    NanoleafProperties? @relation(fields: [nanoleafPropertiesId], references: [id])
