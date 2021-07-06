@@ -1,12 +1,18 @@
 import { Field, InputType } from "type-graphql";
 
 @InputType()
-class CreateNanoleafUserInput {
+class AuthenticateNewUserInput {
+  @Field()
+  ip: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  mac: string;
+
   @Field()
   userId: string;
-
-  @Field()
-  authToken: string;
 }
 
-export { CreateNanoleafUserInput };
+export { AuthenticateNewUserInput };
