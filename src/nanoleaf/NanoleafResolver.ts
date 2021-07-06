@@ -1,13 +1,34 @@
 const fetch = require("node-fetch");
 import { UserInputError } from "apollo-server";
-import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
+import {
+  Arg,
+  Ctx,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from "type-graphql";
 
 import { Context, NanoLeafAuthenticationResponse } from "types";
+import { User } from "user";
 import { NanoleafAuthToken, NanoleafUser } from "./Nanoleaf";
-import { CreateNanoleafUserInput } from "./NanoleafInputs";
+// import { CreateNanoleafUserInput } from "./NanoleafInputs";
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
+  @FieldResolver(() => NanoleafUser)
+  async nanoleafUser(
+    @Root() NanoleafAuthToken: NanoleafAuthToken,
+    @Ctx() { prisma }: Context
+  ): Promise<NanoleafUser | null> {
+    const nanoleafUser = await prisma.nanoleafAuthToken
+      .findUnique({ where: { id: NanoleafAuthToken.id } })
+      .nanoleafUser();
+
+    return nanoleafUser;
+  }
+
   @Mutation(() => String)
   async authenticateNewUser(
     @Arg("ipAddress") ipAddress: string,
@@ -31,18 +52,23 @@ class NanoleafAuthTokenResolver {
       const { auth_token: authToken }: NanoLeafAuthenticationResponse =
         await response.json();
 
-      await prisma.nanoleafUser.upsert({
+      //* Nanoleaf user is created here if it doesn't already exist
+      const nanoleafUser = await prisma.nanoleafUser.upsert({
         where: {
           userId,
         },
         update: {},
         create: {
-          authTokens: {
-            create: {
-              authToken,
-            },
-          },
           userId,
+        },
+      });
+
+      //* Currently unable to update array with upsert through Prisma,
+      //* so we create a new authToken here
+      await prisma.nanoleafAuthToken.create({
+        data: {
+          authToken,
+          nanoleafUserId: nanoleafUser.id,
         },
       });
 
@@ -55,20 +81,47 @@ class NanoleafAuthTokenResolver {
 
 @Resolver(NanoleafUser)
 class NanoleafUserResolver {
-  @Mutation(() => NanoleafUser)
-  async createNanoleafUser(
-    @Arg("input") input: CreateNanoleafUserInput,
+  @FieldResolver(() => [NanoleafAuthToken])
+  async authTokens(
+    @Root() nanoleafUser: NanoleafUser,
+    @Ctx() { prisma }: Context
+  ): Promise<NanoleafAuthToken[]> {
+    const authTokens = await prisma.nanoleafUser
+      .findUnique({ where: { id: nanoleafUser.id } })
+      .authTokens();
+
+    return authTokens;
+  }
+
+  @FieldResolver(() => User)
+  async user(
+    @Root() nanoleafUser: NanoleafUser,
+    @Ctx() { prisma }: Context
+  ): Promise<User | null> {
+    const user = await prisma.nanoleafUser
+      .findUnique({ where: { id: nanoleafUser.id } })
+      .user();
+
+    return user;
+  }
+
+  @Query(() => [NanoleafUser])
+  async getAllNanoleafUsers(
+    @Ctx() { prisma }: Context
+  ): Promise<NanoleafUser[]> {
+    const nanoleafUsers = await prisma.nanoleafUser.findMany();
+
+    return nanoleafUsers;
+  }
+
+  @Query(() => NanoleafUser)
+  async getNanoleafUserById(
+    @Arg("id") id: string,
     @Ctx() { prisma }: Context
   ): Promise<NanoleafUser | null> {
-    const nanoleafUser = (await prisma.nanoleafUser.create({
-      data: {
-        userId: input.userId,
-        authTokens: {
-          create: { authToken: input.authToken },
-        },
-      },
-    })) as NanoleafUser;
-    console.log(nanoleafUser);
+    const nanoleafUser = await prisma.nanoleafUser.findUnique({
+      where: { id },
+    });
 
     return nanoleafUser;
   }
