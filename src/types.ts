@@ -11,6 +11,14 @@ export enum DeviceMacSubstringByType {
   HUE = "ECB5",
 }
 
-export interface NanoLeafAuthenticationResponse {
+export interface NanoleafAuthenticationResponse {
   auth_token: string;
+}
+
+export interface NanoleafPanelGetResponse {
+  firmwareVersion: string;
+  name: string;
+  manufacturer: string;
+  model: string;
+  serialNo: string;
 }
