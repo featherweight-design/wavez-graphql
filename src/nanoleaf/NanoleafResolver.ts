@@ -1,5 +1,5 @@
-const fetch = require("node-fetch");
 import { UserInputError } from "apollo-server";
+import fetch from "node-fetch";
 import {
   Arg,
   Ctx,
@@ -10,10 +10,14 @@ import {
   Root,
 } from "type-graphql";
 
-import { Context, NanoLeafAuthenticationResponse } from "types";
+import {
+  Context,
+  NanoleafAuthenticationResponse,
+  NanoleafPanelGetResponse,
+} from "types";
 import { User } from "user";
-import { NanoleafAuthToken, NanoleafUser } from "./Nanoleaf";
-// import { CreateNanoleafUserInput } from "./NanoleafInputs";
+import { NanoleafAuthToken, NanoleafPanel, NanoleafUser } from "./Nanoleaf";
+import { AuthenticateNewUserInput } from "./NanoleafInputs";
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
@@ -31,12 +35,15 @@ class NanoleafAuthTokenResolver {
 
   @Mutation(() => String)
   async authenticateNewUser(
-    @Arg("ipAddress") ipAddress: string,
+    @Arg("input") input: AuthenticateNewUserInput,
     @Arg("userId") userId: string,
     @Ctx() { prisma }: Context
   ): Promise<String> {
     try {
-      const response = await fetch(`http://${ipAddress}:16021/api/v1/new`, {
+      const nanoleafBaseApiUrl = `http://${input.ip}:16021/api/v1`;
+
+      // TODO: Migrate to utility
+      const response = await fetch(`${nanoleafBaseApiUrl}/new`, {
         method: "POST",
       });
 
@@ -49,7 +56,7 @@ class NanoleafAuthTokenResolver {
         );
       }
 
-      const { auth_token: authToken }: NanoLeafAuthenticationResponse =
+      const { auth_token: authToken }: NanoleafAuthenticationResponse =
         await response.json();
 
       //* Nanoleaf user is created here if it doesn't already exist
@@ -65,10 +72,35 @@ class NanoleafAuthTokenResolver {
 
       //* Currently unable to update array with upsert through Prisma,
       //* so we create a new authToken here
-      await prisma.nanoleafAuthToken.create({
+      const nanoleafAuthToken = await prisma.nanoleafAuthToken.create({
         data: {
           authToken,
           nanoleafUserId: nanoleafUser.id,
+        },
+      });
+
+      // TODO Migrate to utility
+      //* Get Panel properties with new auth token
+      const panelResponse = await fetch(`${nanoleafBaseApiUrl}/${authToken}`);
+      const panelData: NanoleafPanelGetResponse = await panelResponse.json();
+
+      //* Create Panel in DB with NL auth token id
+      const panel = await prisma.nanoleafProperties.create({
+        data: {
+          ...panelData,
+          authToken: {
+            connect: nanoleafAuthToken,
+          },
+        },
+      });
+
+      //* Create new user device with NL properites and user id
+      await prisma.device.create({
+        data: {
+          ...input,
+          type: "NANOLEAF",
+          nanoleafPropertiesId: panel.id,
+          userId,
         },
       });
 
@@ -77,8 +109,21 @@ class NanoleafAuthTokenResolver {
       throw new Error(error);
     }
   }
+
+  @Mutation(() => String)
+  async deleteNanoleafAuthToken(
+    @Arg("id") id: string,
+    @Ctx() { prisma }: Context
+  ): Promise<string> {
+    await prisma.nanoleafAuthToken.delete({
+      where: { id },
+    });
+
+    return id;
+  }
 }
 
+@Resolver(NanoleafPanel)
 @Resolver(NanoleafUser)
 class NanoleafUserResolver {
   @FieldResolver(() => [NanoleafAuthToken])
