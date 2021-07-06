@@ -10,9 +10,6 @@ class AuthenticateNewUserInput {
 
   @Field()
   mac: string;
-
-  @Field()
-  userId: string;
 }
 
 export { AuthenticateNewUserInput };
