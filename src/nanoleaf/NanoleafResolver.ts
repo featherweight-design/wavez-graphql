@@ -40,6 +40,20 @@ class NanoleafAuthTokenResolver {
     @Ctx() { prisma }: Context
   ): Promise<String> {
     try {
+      //* Check to see if a device with the same IP Address already exists
+      const doesDeviceExist = await prisma.device.findUnique({
+        where: {
+          ip: input.ip,
+        },
+      });
+
+      //* IP addresses much be unique, so throw error accordingly
+      if (doesDeviceExist) {
+        throw new UserInputError(
+          `A device using the IP Address ${input.ip} already exists.`
+        );
+      }
+
       const nanoleafBaseApiUrl = `http://${input.ip}:16021/api/v1`;
 
       // TODO: Migrate to utility
@@ -59,6 +73,17 @@ class NanoleafAuthTokenResolver {
       const { auth_token: authToken }: NanoleafAuthenticationResponse =
         await response.json();
 
+      // TODO Migrate to utility
+      //* Get Panel properties with new auth token
+      const panelResponse = await fetch(`${nanoleafBaseApiUrl}/${authToken}`);
+
+      const {
+        firmwareVersion,
+        name,
+        model,
+        serialNo,
+      }: NanoleafPanelGetResponse = await panelResponse.json();
+
       //* Nanoleaf user is created here if it doesn't already exist
       const nanoleafUser = await prisma.nanoleafUser.upsert({
         where: {
@@ -72,24 +97,24 @@ class NanoleafAuthTokenResolver {
 
       //* Currently unable to update array with upsert through Prisma,
       //* so we create a new authToken here
-      const nanoleafAuthToken = await prisma.nanoleafAuthToken.create({
+      await prisma.nanoleafAuthToken.create({
         data: {
           authToken,
           nanoleafUserId: nanoleafUser.id,
         },
       });
 
-      // TODO Migrate to utility
-      //* Get Panel properties with new auth token
-      const panelResponse = await fetch(`${nanoleafBaseApiUrl}/${authToken}`);
-      const panelData: NanoleafPanelGetResponse = await panelResponse.json();
-
       //* Create Panel in DB with NL auth token id
       const panel = await prisma.nanoleafProperties.create({
         data: {
-          ...panelData,
+          firmwareVersion,
+          name,
+          model,
+          serialNo,
           authToken: {
-            connect: nanoleafAuthToken,
+            connect: {
+              authToken: authToken,
+            },
           },
         },
       });
