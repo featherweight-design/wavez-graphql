@@ -18,7 +18,6 @@ export interface NanoleafAuthenticationResponse {
 export interface NanoleafPanelGetResponse {
   firmwareVersion: string;
   name: string;
-  manufacturer: string;
   model: string;
   serialNo: string;
 }
