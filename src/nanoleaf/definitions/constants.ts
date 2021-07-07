@@ -10,6 +10,8 @@ const endpoints = {
   update: {
     effect: (ipAddress: string, authToken: string) =>
       `${endpoints.baseApi(ipAddress)}/${authToken}/effects`,
+    state: (ipAddress: string, authToken: string) =>
+      `${endpoints.baseApi(ipAddress)}/${authToken}/state`,
   },
 };
 
