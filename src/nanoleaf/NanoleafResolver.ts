@@ -1,5 +1,3 @@
-import { UserInputError } from "apollo-server";
-import fetch from "node-fetch";
 import {
   Arg,
   Ctx,
@@ -10,14 +8,20 @@ import {
   Root,
 } from "type-graphql";
 
-import {
-  Context,
-  NanoleafAuthenticationResponse,
-  NanoleafPanelGetResponse,
-} from "types";
+import { Context } from "types";
 import { User } from "user";
-import { NanoleafAuthToken, NanoleafPanel, NanoleafUser } from "./Nanoleaf";
+import {
+  NanoleafAuthToken,
+  NanoleafEffects,
+  NanoleafPanel,
+  NanoleafUser,
+} from "./Nanoleaf";
 import { AuthenticateNewUserInput } from "./NanoleafInputs";
+import {
+  authenticateWithNanoleafDevice,
+  doesDeviceExistsByIpAddress,
+  getAllPanelProperties,
+} from "./utils";
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
@@ -34,55 +38,20 @@ class NanoleafAuthTokenResolver {
   }
 
   @Mutation(() => String)
-  async authenticateNewUser(
+  async authenticateNewNanoleafUser(
     @Arg("input") input: AuthenticateNewUserInput,
     @Arg("userId") userId: string,
     @Ctx() { prisma }: Context
   ): Promise<String> {
     try {
       //* Check to see if a device with the same IP Address already exists
-      const doesDeviceExist = await prisma.device.findUnique({
-        where: {
-          ip: input.ip,
-        },
-      });
+      doesDeviceExistsByIpAddress(prisma, input.ip);
 
-      //* IP addresses much be unique, so throw error accordingly
-      if (doesDeviceExist) {
-        throw new UserInputError(
-          `A device using the IP Address ${input.ip} already exists.`
-        );
-      }
+      const authToken = await authenticateWithNanoleafDevice(input.ip);
 
-      const nanoleafBaseApiUrl = `http://${input.ip}:16021/api/v1`;
-
-      // TODO: Migrate to utility
-      const response = await fetch(`${nanoleafBaseApiUrl}/new`, {
-        method: "POST",
-      });
-
-      if (
-        !response.ok &&
-        (response.status === 401 || response.status === 403)
-      ) {
-        throw new UserInputError(
-          `Status: ${response.status}: Unable to authenticate with Nanoleaf device. Ensure that your device is ready to authenticate by holding down the power button until the lights start blinking (5-7 seconds).`
-        );
-      }
-
-      const { auth_token: authToken }: NanoleafAuthenticationResponse =
-        await response.json();
-
-      // TODO Migrate to utility
       //* Get Panel properties with new auth token
-      const panelResponse = await fetch(`${nanoleafBaseApiUrl}/${authToken}`);
-
-      const {
-        firmwareVersion,
-        name,
-        model,
-        serialNo,
-      }: NanoleafPanelGetResponse = await panelResponse.json();
+      const { firmwareVersion, name, model, serialNo } =
+        await getAllPanelProperties(input.ip, authToken);
 
       //* Nanoleaf user is created here if it doesn't already exist
       const nanoleafUser = await prisma.nanoleafUser.upsert({
@@ -148,7 +117,23 @@ class NanoleafAuthTokenResolver {
   }
 }
 
-@Resolver(NanoleafPanel)
+@Resolver(NanoleafEffects)
+class NanoleafEffectsResolver {
+  @FieldResolver(() => NanoleafPanel)
+  async properties(
+    @Root() effects: NanoleafEffects,
+    @Ctx() { prisma }: Context
+  ): Promise<NanoleafPanel | null> {
+    const properties = await prisma.nanoleafEffects
+      .findUnique({
+        where: { propertiesId: effects.propertiesId },
+      })
+      .properties();
+
+    return properties;
+  }
+}
+
 @Resolver(NanoleafUser)
 class NanoleafUserResolver {
   @FieldResolver(() => [NanoleafAuthToken])
@@ -197,4 +182,8 @@ class NanoleafUserResolver {
   }
 }
 
-export { NanoleafUserResolver, NanoleafAuthTokenResolver };
+export {
+  NanoleafAuthTokenResolver,
+  NanoleafEffectsResolver,
+  NanoleafUserResolver,
+};
