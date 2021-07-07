@@ -49,7 +49,7 @@ model NanoleafUser {
 
 model NanoleafAuthToken {
   id             String              @id @default(uuid())
-  authToken      String              @unique
+  token          String              @unique
   panelId        String?
   panel          NanoleafProperties? @relation(fields: [panelId], references: [id])
   nanoleafUserId String?
