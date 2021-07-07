@@ -3,6 +3,10 @@ const endpoints = {
   authenticate: (ipAddress: string) => `${endpoints.baseApi(ipAddress)}/new`,
   getAllProperties: (ipAddress: string, authToken: string) =>
     `${endpoints.baseApi(ipAddress)}/${authToken}`,
+  update: {
+    effect: (ipAddress: string, authToken: string) =>
+      `${endpoints.baseApi(ipAddress)}/${authToken}/effects`,
+  },
 };
 
 const constants = {
