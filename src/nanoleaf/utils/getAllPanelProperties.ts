@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { NanoleafPanelGetResponse } from "types";
+import { NanoleafPanelProps } from "types";
 
 import { constants } from "../definitions";
 
@@ -8,7 +8,7 @@ const { endpoints } = constants;
 const getAllPanelProperties = async (
   ipAddress: string,
   authToken: string
-): Promise<NanoleafPanelGetResponse> => {
+): Promise<NanoleafPanelProps> => {
   const response = await fetch(
     endpoints.get.properties(ipAddress, authToken)
   );
