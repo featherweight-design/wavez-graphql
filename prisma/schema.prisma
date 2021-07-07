@@ -23,6 +23,8 @@ model Device {
   name                 String              @unique
   mac                  String              @unique
   type                 DeviceType
+  authTokenId          String?             @unique
+  authToken            NanoleafAuthToken?  @relation(fields: [authTokenId], references: [id])
   userId               String
   user                 User                @relation(fields: [userId], references: [id])
   nanoleafPropertiesId String?
@@ -54,6 +56,7 @@ model NanoleafAuthToken {
   nanoleafUser   NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
+  Device         Device[]
 }
 
 model NanoleafProperties {
