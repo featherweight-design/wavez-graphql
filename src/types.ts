@@ -15,15 +15,30 @@ export interface NanoleafAuthenticationResponse {
   auth_token: string;
 }
 
-export interface NanoleafPanelGetResponse {
+export interface NanoleafPanelProps {
   firmwareVersion: string;
   name: string;
   model: string;
   serialNo: string;
-  effects: NanoleadEffectsGetResponse;
+  effects: NanoleafEffectsProps;
 }
 
-export interface NanoleadEffectsGetResponse {
+export interface NanoleafEffectsProps {
   select: string;
   effectsList: string[];
+}
+
+export interface NanoleafStateValueProps {
+  value: boolean | string;
+  min?: string;
+  max?: string;
+}
+
+export interface NanoleafStateProps {
+  on?: NanoleafStateValueProps;
+  brightness?: NanoleafStateValueProps;
+  hue?: NanoleafStateValueProps;
+  sat?: NanoleafStateValueProps;
+  ct?: NanoleafStateValueProps;
+  colorMode?: string;
 }
