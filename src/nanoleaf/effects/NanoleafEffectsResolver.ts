@@ -39,17 +39,17 @@ class NanoleafEffectsResolver {
     const deviceProperties = await prisma.device.findUnique({
       where: { id: deviceId },
       include: {
-        authToken: true,
+        nanoleafAuthToken: true,
       },
     });
 
-    if (!deviceProperties || !deviceProperties.authToken) {
+    if (!deviceProperties || !deviceProperties.nanoleafAuthToken) {
       throw new UserInputError("Bad");
     }
 
-    const { ip, authToken } = deviceProperties;
+    const { ip, nanoleafAuthToken } = deviceProperties;
 
-    const effectsList = await getEffectsList(ip, authToken.token);
+    const effectsList = await getEffectsList(ip, nanoleafAuthToken.token);
 
     return effectsList;
   }
@@ -64,17 +64,19 @@ class NanoleafEffectsResolver {
     const deviceProperties = await prisma.device.findUnique({
       where: { id: deviceId },
       include: {
-        authToken: true,
+        nanoleafAuthToken: true,
       },
     });
 
-    if (!deviceProperties || !deviceProperties.authToken) {
+    if (!deviceProperties || !deviceProperties.nanoleafAuthToken) {
       throw new UserInputError("Bad");
     }
 
-    const { ip, authToken } = deviceProperties;
+    const { ip, nanoleafAuthToken } = deviceProperties;
 
-    await updateCurrentEffect(ip, authToken.token, { select: effectName });
+    await updateCurrentEffect(ip, nanoleafAuthToken.token, {
+      select: effectName,
+    });
 
     return true;
   }
@@ -88,16 +90,18 @@ class NanoleafEffectsResolver {
     // TODO: Update to utility
     const devices = await prisma.device.findMany({
       where: { userId: userId, type: "NANOLEAF" },
-      include: { authToken: true },
+      include: { nanoleafAuthToken: true },
     });
 
     if (!devices.length) {
       throw new UserInputError("Bad");
     }
 
-    devices.forEach(async ({ ip, authToken }) => {
-      if (authToken) {
-        await updateCurrentEffect(ip, authToken.token, { select: effectName });
+    devices.forEach(async ({ ip, nanoleafAuthToken }) => {
+      if (nanoleafAuthToken) {
+        await updateCurrentEffect(ip, nanoleafAuthToken.token, {
+          select: effectName,
+        });
       }
     });
 
