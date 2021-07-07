@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import { UserInputError } from "apollo-server";
 import {
   Arg,
@@ -11,7 +10,6 @@ import {
 } from "type-graphql";
 
 import { Context } from "types";
-import { constants } from "nanoleaf/definitions";
 import NanoleafEffects from "./NanoleafEffects";
 import { NanoleafPanel } from "nanoleaf/panel";
 import { getEffectsList, updateCurrentEffect } from "nanoleaf/utils";
