@@ -20,4 +20,10 @@ export interface NanoleafPanelGetResponse {
   name: string;
   model: string;
   serialNo: string;
+  effects: NanoleadEffectsGetResponse;
+}
+
+export interface NanoleadEffectsGetResponse {
+  select: string;
+  effectsList: string[];
 }

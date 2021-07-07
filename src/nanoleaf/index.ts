@@ -1,6 +1,7 @@
 import { NanoleafAuthToken, NanoleafEffects, NanoleafPanel, NanoleafUser } from "./Nanoleaf";
 import {
   NanoleafAuthTokenResolver,
+  NanoleafEffectsResolver,
   NanoleafUserResolver,
 } from "./NanoleafResolver";
 
@@ -12,5 +13,6 @@ export {
   NanoleafUser,
   //* Resolvers
   NanoleafAuthTokenResolver,
+  NanoleafEffectsResolver,
   NanoleafUserResolver,
 };

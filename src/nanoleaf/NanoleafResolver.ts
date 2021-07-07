@@ -1,3 +1,4 @@
+import { UserInputError } from "apollo-server";
 import {
   Arg,
   Ctx,
@@ -131,6 +132,29 @@ class NanoleafEffectsResolver {
       .properties();
 
     return properties;
+  }
+
+  @Query(() => [String])
+  async getPanelEffectsList(
+    @Arg("deviceId") deviceId: string,
+    @Ctx() { prisma }: Context
+  ): Promise<string[]> {
+    const deviceProperties = await prisma.device.findUnique({
+      where: { id: deviceId },
+      include: {
+        authToken: true,
+      },
+    });
+
+    if (!deviceProperties || !deviceProperties.authToken) {
+      throw new UserInputError("Bad");
+    }
+
+    const { ip, authToken } = deviceProperties;
+
+    const { effects } = await getAllPanelProperties(ip, authToken.authToken);
+
+    return effects.effectsList;
   }
 }
 

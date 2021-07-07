@@ -5,7 +5,11 @@ import { buildSchemaSync } from "type-graphql";
 
 import { Context } from "types";
 import { DeviceResolver } from "device";
-import { NanoleafAuthTokenResolver, NanoleafUserResolver } from "nanoleaf";
+import {
+  NanoleafAuthTokenResolver,
+  NanoleafEffectsResolver,
+  NanoleafUserResolver,
+} from "nanoleaf";
 import { UserResolver } from "user";
 
 const PORT = 4000;
@@ -15,6 +19,7 @@ const schema = buildSchemaSync({
   resolvers: [
     DeviceResolver,
     NanoleafAuthTokenResolver,
+    NanoleafEffectsResolver,
     NanoleafUserResolver,
     UserResolver,
   ],
