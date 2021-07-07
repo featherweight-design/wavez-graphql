@@ -41,7 +41,7 @@ class NanoleafEffects {
   @Field()
   select: string;
 
-  @Field()
+  @Field(() => [String])
   effectsList: string[]
 
   @Field()
