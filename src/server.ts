@@ -8,6 +8,8 @@ import { DeviceResolver } from "device";
 import {
   NanoleafAuthTokenResolver,
   NanoleafEffectsResolver,
+  NanoleafPanelResolver,
+  NanoleafStateResolver,
   NanoleafUserResolver,
 } from "nanoleaf";
 import { UserResolver } from "user";
@@ -20,6 +22,8 @@ const schema = buildSchemaSync({
     DeviceResolver,
     NanoleafAuthTokenResolver,
     NanoleafEffectsResolver,
+    NanoleafPanelResolver,
+    NanoleafStateResolver,
     NanoleafUserResolver,
     UserResolver,
   ],
