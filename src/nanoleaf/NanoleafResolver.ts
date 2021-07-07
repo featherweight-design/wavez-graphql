@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 import { UserInputError } from "apollo-server";
 import {
   Arg,
@@ -161,7 +161,7 @@ class NanoleafEffectsResolver {
   }
 
   @Mutation(() => Boolean)
-  async updateCurrentPanelEffect(
+  async updateCurrentEffectByDeviceId(
     @Arg("deviceId") deviceId: string,
     @Arg("effectName") effectName: string,
     @Ctx() { prisma }: Context
@@ -184,6 +184,37 @@ class NanoleafEffectsResolver {
     await fetch(constants.endpoints.update.effect(ip, authToken.authToken), {
       method: "PUT",
       body: JSON.stringify({ select: effectName }),
+    });
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async updateAllCurrentEffect(
+    @Arg("userId") userId: string,
+    @Arg("effectName") effectName: string,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    // TODO: Update to utility
+    const devices = await prisma.device.findMany({
+      where: { userId: userId, type: "NANOLEAF" },
+      include: { authToken: true },
+    });
+
+    if (!devices.length) {
+      throw new UserInputError("Bad");
+    }
+
+    devices.forEach(async ({ ip, authToken }) => {
+      if (authToken) {
+        await fetch(
+          constants.endpoints.update.effect(ip, authToken.authToken),
+          {
+            method: "PUT",
+            body: JSON.stringify({ select: effectName }),
+          }
+        );
+      }
     });
 
     return true;
