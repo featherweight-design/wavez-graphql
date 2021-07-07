@@ -14,7 +14,7 @@ import { Context } from "types";
 import { constants } from "nanoleaf/definitions";
 import NanoleafEffects from "./NanoleafEffects";
 import { NanoleafPanel } from "nanoleaf/panel";
-import { getAllPanelProperties } from "nanoleaf/utils";
+import { getEffectsList, updateCurrentEffect } from "nanoleaf/utils";
 
 @Resolver(NanoleafEffects)
 class NanoleafEffectsResolver {
@@ -51,9 +51,9 @@ class NanoleafEffectsResolver {
 
     const { ip, authToken } = deviceProperties;
 
-    const { effects } = await getAllPanelProperties(ip, authToken.authToken);
+    const effectsList = await getEffectsList(ip, authToken.token);
 
-    return effects.effectsList;
+    return effectsList;
   }
 
   @Mutation(() => Boolean)
@@ -74,13 +74,9 @@ class NanoleafEffectsResolver {
       throw new UserInputError("Bad");
     }
 
-    // TODO: Update schema to authToken.token
     const { ip, authToken } = deviceProperties;
 
-    await fetch(constants.endpoints.update.effect(ip, authToken.authToken), {
-      method: "PUT",
-      body: JSON.stringify({ select: effectName }),
-    });
+    await updateCurrentEffect(ip, authToken.token, { select: effectName });
 
     return true;
   }
@@ -103,13 +99,7 @@ class NanoleafEffectsResolver {
 
     devices.forEach(async ({ ip, authToken }) => {
       if (authToken) {
-        await fetch(
-          constants.endpoints.update.effect(ip, authToken.authToken),
-          {
-            method: "PUT",
-            body: JSON.stringify({ select: effectName }),
-          }
-        );
+        await updateCurrentEffect(ip, authToken.token, { select: effectName });
       }
     });
 
