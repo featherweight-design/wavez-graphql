@@ -1,9 +1,10 @@
-import { NanoleafAuthToken, NanoleafEffects, NanoleafPanel, NanoleafUser } from "./Nanoleaf";
 import {
+  NanoleafAuthToken,
   NanoleafAuthTokenResolver,
-  NanoleafEffectsResolver,
-  NanoleafUserResolver,
-} from "./NanoleafResolver";
+} from "nanoleaf/authToken";
+import { NanoleafEffects, NanoleafEffectsResolver } from "./effects";
+import { NanoleafPanel, NanoleafPanelResolver } from "./panel";
+import { NanoleafUser, NanoleafUserResolver } from "./nanoleafUser";
 
 export {
   //* Schemas
@@ -14,5 +15,6 @@ export {
   //* Resolvers
   NanoleafAuthTokenResolver,
   NanoleafEffectsResolver,
+  NanoleafPanelResolver,
   NanoleafUserResolver,
 };
