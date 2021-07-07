@@ -10,6 +10,17 @@ generator client {
   provider = "prisma-client-js"
 }
 
+//* User
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  nanoleafUser NanoleafUser?
+  devices      Device[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
 //* Device
 enum DeviceType {
   NANOLEAF
@@ -23,16 +34,16 @@ model Device {
   name                 String              @unique
   mac                  String              @unique
   type                 DeviceType
-  authTokenId          String?             @unique
-  authToken            NanoleafAuthToken?  @relation(fields: [authTokenId], references: [id])
   userId               String
   user                 User                @relation(fields: [userId], references: [id])
-  nanoleafPropertiesId String?
-  naoleafProperties    NanoleafProperties? @relation(fields: [nanoleafPropertiesId], references: [id])
-  lifxPropertiesId     String?
-  lifxProperties       LifxProperties?     @relation(fields: [lifxPropertiesId], references: [id])
-  huePropertiesId      String?
-  hueProperties        HueProperties?      @relation(fields: [huePropertiesId], references: [id])
+  nanoleafUserId       String?
+  NanoleafUser         NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
+  nanoleafPropertiesId String?             @unique
+  nanoleafProperties   NanoleafProperties?
+  lifxPropertiesId     String?             @unique
+  lifxProperties       LifxProperties?
+  huePropertiesId      String?             @unique
+  hueProperties        HueProperties?
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
 }
@@ -41,6 +52,7 @@ model Device {
 model NanoleafUser {
   id         String              @id @default(uuid())
   authTokens NanoleafAuthToken[]
+  devices    Device[]
   userId     String              @unique
   user       User                @relation(fields: [userId], references: [id])
   createdAt  DateTime            @default(now())
@@ -56,47 +68,20 @@ model NanoleafAuthToken {
   nanoleafUser   NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
-  Device         Device[]
 }
 
 model NanoleafProperties {
-  id              String               @id @default(uuid())
+  id              String             @id @default(uuid())
   name            String
-  serialNo        String               @unique
+  serialNo        String             @unique
   firmwareVersion String
   model           String
-  state           NanoleafState?
   effects         NanoleafEffects?
-  panelLayout     NanoleafPanelLayout?
-  rhythm          NanoleafRhythm?
   authToken       NanoleafAuthToken?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
-  Device          Device[]
-}
-
-model NanoleafState {
-  id           String              @id @default(uuid())
-  on           NanoleafStateValue? @relation("on")
-  brightness   NanoleafStateValue? @relation("brightness")
-  hue          NanoleafStateValue? @relation("hue")
-  sat          NanoleafStateValue? @relation("sat")
-  ct           NanoleafStateValue? @relation("ct")
-  colorMode    String
-  propertiesId String              @unique
-  properties   NanoleafProperties  @relation(fields: [propertiesId], references: [id])
-}
-
-model NanoleafStateValue {
-  value           Boolean
-  max             Int?
-  min             Int?
-  stateId         String         @unique
-  stateOn         NanoleafState? @relation("on", fields: [stateId], references: [id])
-  stateBrightness NanoleafState? @relation("brightness", fields: [stateId], references: [id])
-  stateHue        NanoleafState? @relation("hue", fields: [stateId], references: [id])
-  stateSat        NanoleafState? @relation("sat", fields: [stateId], references: [id])
-  stateCt         NanoleafState? @relation("ct", fields: [stateId], references: [id])
+  deviceId        String
+  device          Device             @relation(fields: [deviceId], references: [id])
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 }
 
 model NanoleafEffects {
@@ -104,75 +89,20 @@ model NanoleafEffects {
   effectsList  String[]
   propertiesId String             @unique
   properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
-}
-
-model NanoleafPanelLayout {
-  id           String             @id @default(uuid())
-  propertiesId String             @unique
-  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
-}
-
-model NanoleafLayout {
-  id                String                          @id @default(uuid())
-  numPanels         Int
-  sideLength        Int
-  positionData      NanoleafPosition?
-  globalOrientation NanoleafGlobalOrientationValue?
-}
-
-model NanoleafPosition {
-  id       String          @id @default(uuid())
-  panelId  Int?
-  x        Int
-  y        Int
-  o        Int
-  layoutId String?         @unique
-  layout   NanoleafLayout? @relation(fields: [layoutId], references: [id])
-  rhythmId String?         @unique
-  rhythm   NanoleafRhythm? @relation(fields: [rhythmId], references: [id])
-}
-
-model NanoleafGlobalOrientationValue {
-  value    Boolean
-  max      Int?
-  min      Int?
-  layoutId String         @unique
-  layout   NanoleafLayout @relation(fields: [layoutId], references: [id])
-}
-
-model NanoleafRhythm {
-  id              String             @id @default(uuid())
-  rhythmConnected Boolean
-  rhytmActive     Boolean?
-  rhythmId        Int?
-  hardwareVersion String?
-  firmwareVersion String?
-  auxAvailable    Boolean?
-  rhythmMode      Float?
-  rhythmPos       NanoleafPosition?
-  propertiesId    String             @unique
-  properties      NanoleafProperties @relation(fields: [propertiesId], references: [id])
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 }
 
 //* Lifx
 model LifxProperties {
-  id     String   @id @default(uuid())
-  Device Device[]
+  id       String  @id @default(uuid())
+  deviceId String  @unique
+  device   Device? @relation(fields: [deviceId], references: [id])
 }
 
 //* Hue
 model HueProperties {
-  id     String   @id @default(uuid())
-  Device Device[]
-}
-
-//* User
-model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  nanoleafUser NanoleafUser?
-  devices      Device[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id       String  @id @default(uuid())
+  deviceId String  @unique
+  device   Device? @relation(fields: [deviceId], references: [id])
 }
