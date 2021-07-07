@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { UserInputError } from "apollo-server";
 import {
   Arg,
@@ -11,6 +12,7 @@ import {
 
 import { Context } from "types";
 import { User } from "user";
+import { constants } from "./definitions";
 import {
   NanoleafAuthToken,
   NanoleafEffects,
@@ -139,6 +141,7 @@ class NanoleafEffectsResolver {
     @Arg("deviceId") deviceId: string,
     @Ctx() { prisma }: Context
   ): Promise<string[]> {
+    // TODO: Migrate to utility
     const deviceProperties = await prisma.device.findUnique({
       where: { id: deviceId },
       include: {
@@ -155,6 +158,35 @@ class NanoleafEffectsResolver {
     const { effects } = await getAllPanelProperties(ip, authToken.authToken);
 
     return effects.effectsList;
+  }
+
+  @Mutation(() => Boolean)
+  async updateCurrentPanelEffect(
+    @Arg("deviceId") deviceId: string,
+    @Arg("effectName") effectName: string,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    // TODO: Migrate to utility
+    const deviceProperties = await prisma.device.findUnique({
+      where: { id: deviceId },
+      include: {
+        authToken: true,
+      },
+    });
+
+    if (!deviceProperties || !deviceProperties.authToken) {
+      throw new UserInputError("Bad");
+    }
+
+    // TODO: Update schema to authToken.token
+    const { ip, authToken } = deviceProperties;
+
+    await fetch(constants.endpoints.update.effect(ip, authToken.authToken), {
+      method: "PUT",
+      body: JSON.stringify({ select: effectName }),
+    });
+
+    return true;
   }
 }
 
