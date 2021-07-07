@@ -9,7 +9,7 @@ import {
 
 import { Context } from "types";
 import NanoleafAuthToken from "./NanoleafAuthTokenResolver";
-import { NanoleafUser } from "../Nanoleaf";
+import { NanoleafUser } from "nanoleaf/nanoleafUser";
 import { AuthenticateNewUserInput } from "../NanoleafInputs";
 import {
   authenticateWithNanoleafDevice,
