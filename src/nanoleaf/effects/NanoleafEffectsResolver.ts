@@ -82,7 +82,7 @@ class NanoleafEffectsResolver {
   }
 
   @Mutation(() => Boolean)
-  async updateAllCurrentEffect(
+  async updateCurrentEffectAll(
     @Arg("userId") userId: string,
     @Arg("effectName") effectName: string,
     @Ctx() { prisma }: Context
