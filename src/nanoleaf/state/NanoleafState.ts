@@ -1,10 +1,9 @@
-import { ObjectType, Field, ID } from "type-graphql";
+import { ObjectType, Field } from "type-graphql";
+
+import { NanoleafStateValueProps } from "types";
 
 @ObjectType()
-class NanoleafState {
-  @Field(() => ID)
-  id: string;
-
+class NanoleafStateValue {
   @Field()
   value: string | boolean;
 
@@ -15,4 +14,25 @@ class NanoleafState {
   max?: string;
 }
 
-export default NanoleafState;
+@ObjectType()
+class NanoleafState {
+  @Field()
+  on?: NanoleafStateValueProps;
+
+  @Field()
+  brightness?: NanoleafStateValueProps;
+
+  @Field()
+  hue?: NanoleafStateValueProps;
+
+  @Field()
+  sat?: NanoleafStateValueProps;
+
+  @Field()
+  ct?: NanoleafStateValueProps;
+
+  @Field()
+  colorMode?: string;
+}
+
+export { NanoleafState, NanoleafStateValue };
