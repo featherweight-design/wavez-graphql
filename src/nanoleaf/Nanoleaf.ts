@@ -36,4 +36,16 @@ class NanoleafAuthToken {
   authToken: string;
 }
 
-export { NanoleafUser, NanoleafAuthToken, NanoleafPanel };
+@ObjectType()
+class NanoleafEffects {
+  @Field()
+  select: string;
+
+  @Field()
+  effectsList: string[]
+
+  @Field()
+  propertiesId: string;
+}
+
+export { NanoleafUser, NanoleafAuthToken, NanoleafPanel, NanoleafEffects };
