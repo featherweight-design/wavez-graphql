@@ -41,11 +41,11 @@ class NanoleafAuthTokenResolver {
       //* Check to see if a device with the same IP Address already exists
       doesDeviceExistsByIpAddress(prisma, input.ip);
 
-      const authToken = await authenticateWithNanoleafDevice(input.ip);
+      const token = await authenticateWithNanoleafDevice(input.ip);
 
       //* Get Panel properties with new auth token
-      const { firmwareVersion, name, model, serialNo } =
-        await getAllPanelProperties(input.ip, authToken);
+      const { firmwareVersion, name, model, serialNo, effects } =
+        await getAllPanelProperties(input.ip, token);
 
       //* Nanoleaf user is created here if it doesn't already exist
       const nanoleafUser = await prisma.nanoleafUser.upsert({
@@ -58,41 +58,55 @@ class NanoleafAuthTokenResolver {
         },
       });
 
-      //* Currently unable to update array with upsert through Prisma,
-      //* so we create a new authToken here
+      /**
+       * * Currently unable to update array with upsert through Prisma,
+       * * so we create a new authToken here and add nanoleadUserId
+       */
       await prisma.nanoleafAuthToken.create({
         data: {
-          authToken,
+          token,
           nanoleafUserId: nanoleafUser.id,
         },
       });
 
-      //* Create Panel in DB with NL auth token id
-      const panel = await prisma.nanoleafProperties.create({
+      /**
+       * * 1. Create device with userId and connect authToke
+       * * 2a. Create nanoleafProperties (panel)
+       * * 2b. Create effects
+       * * 2c. Connect authToken to panel
+       */
+      await prisma.device.create({
         data: {
-          firmwareVersion,
-          name,
-          model,
-          serialNo,
-          authToken: {
+          ...input,
+          type: "NANOLEAF",
+          userId,
+          nanoleafAuthToken: {
             connect: {
-              authToken: authToken,
+              token,
+            },
+          },
+          nanoleafProperties: {
+            create: {
+              firmwareVersion,
+              name,
+              model,
+              serialNo,
+              effects: {
+                create: {
+                  ...effects
+                }
+              },
+              authToken: {
+                connect: {
+                  token,
+                },
+              },
             },
           },
         },
       });
 
-      //* Create new user device with NL properites and user id
-      await prisma.device.create({
-        data: {
-          ...input,
-          type: "NANOLEAF",
-          nanoleafPropertiesId: panel.id,
-          userId,
-        },
-      });
-
-      return authToken;
+      return token;
     } catch (error) {
       throw new Error(error);
     }
