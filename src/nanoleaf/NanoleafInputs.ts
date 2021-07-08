@@ -19,31 +19,31 @@ class NanoleafStateValueInput {
   @Field()
   value: string;
 
-  @Field()
+  @Field({ nullable: true })
   min?: string;
 
-  @Field()
+  @Field({ nullable: true })
   max?: string;
 }
 
 @InputType()
 class NanoleafStateInput {
-  @Field(() => NanoleafStateValueInput)
+  @Field(() => NanoleafStateValueInput, { nullable: true })
   on?: NanoleafStateValueProps;
 
-  @Field(() => NanoleafStateValueInput)
+  @Field(() => NanoleafStateValueInput, { nullable: true })
   brightness?: NanoleafStateValueProps;
 
-  @Field(() => NanoleafStateValueInput)
+  @Field(() => NanoleafStateValueInput, { nullable: true })
   hue?: NanoleafStateValueProps;
 
-  @Field(() => NanoleafStateValueInput)
+  @Field(() => NanoleafStateValueInput, { nullable: true })
   sat?: NanoleafStateValueProps;
 
-  @Field(() => NanoleafStateValueInput)
+  @Field(() => NanoleafStateValueInput, { nullable: true })
   ct?: NanoleafStateValueProps;
 
-  @Field()
+  @Field({ nullable: true })
   colorMode?: string;
 }
 
