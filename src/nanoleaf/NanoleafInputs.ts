@@ -1,7 +1,6 @@
 import { Field, InputType } from "type-graphql";
 
 import { NanoleafStateValueProps } from "types";
-import { NanoleafStateResolver, NanoleafStateValue } from "nanoleaf/state";
 
 @InputType()
 class AuthenticateNewUserInput {
@@ -16,24 +15,40 @@ class AuthenticateNewUserInput {
 }
 
 @InputType()
-class UpdateStateInput {
+class NanoleafStateValueInput {
   @Field()
+  value: string;
+
+  @Field()
+  min?: string;
+
+  @Field()
+  max?: string;
+}
+
+@InputType()
+class NanoleafStateInput {
+  @Field(() => NanoleafStateValueInput)
   on?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValueInput)
   brightness?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValueInput)
   hue?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValueInput)
   sat?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValueInput)
   ct?: NanoleafStateValueProps;
 
   @Field()
   colorMode?: string;
 }
 
-export { AuthenticateNewUserInput, UpdateStateInput };
+export {
+  AuthenticateNewUserInput,
+  NanoleafStateInput,
+  NanoleafStateValueInput,
+};
