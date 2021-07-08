@@ -5,7 +5,7 @@ import { NanoleafStateValueProps } from "types";
 @ObjectType()
 class NanoleafStateValue {
   @Field()
-  value: string | boolean;
+  value: string;
 
   @Field()
   min?: string;
@@ -16,19 +16,19 @@ class NanoleafStateValue {
 
 @ObjectType()
 class NanoleafState {
-  @Field()
+  @Field(() => NanoleafStateValue)
   on?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValue)
   brightness?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValue)
   hue?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValue)
   sat?: NanoleafStateValueProps;
 
-  @Field()
+  @Field(() => NanoleafStateValue)
   ct?: NanoleafStateValueProps;
 
   @Field()
