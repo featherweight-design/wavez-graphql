@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+
 import { NanoleafStateProps } from "types";
 import { constants } from "nanoleaf/definitions";
 
@@ -32,7 +34,7 @@ const updateCurrentState = async (
       body: JSON.stringify(checkForOnState(body)),
     });
   } catch (error) {
-    console.error(error);
+    throw new Error(error);
   }
 };
 

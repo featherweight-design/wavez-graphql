@@ -1,3 +1,5 @@
+import fetch from "node-fetch";
+
 import { constants } from "nanoleaf/definitions";
 
 const { endpoints } = constants;
@@ -17,7 +19,7 @@ const updateCurrentEffect = async (
       body: JSON.stringify(body),
     });
   } catch (error) {
-    console.error(error);
+    throw new Error(error);
   }
 };
 
