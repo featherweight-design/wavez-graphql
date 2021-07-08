@@ -1,4 +1,4 @@
-import NanoleafAuthToken from "./NanoleafAuthTokenResolver";
-import NanoleafAuthTokenResolver from "./NanoleafAuthToken";
+import NanoleafAuthToken from "./NanoleafAuthToken";
+import NanoleafAuthTokenResolver from "./NanoleafAuthTokenResolver";
 
 export { NanoleafAuthToken, NanoleafAuthTokenResolver };
