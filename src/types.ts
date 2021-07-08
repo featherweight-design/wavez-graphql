@@ -29,7 +29,7 @@ export interface NanoleafEffectsProps {
 }
 
 export interface NanoleafStateValueProps {
-  value: boolean | string;
+  value: string | boolean;
   min?: string;
   max?: string;
 }
