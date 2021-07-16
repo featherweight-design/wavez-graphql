@@ -1,23 +1,24 @@
-import "reflect-metadata";
-import { PrismaClient } from "@prisma/client";
-import { ApolloServer } from "apollo-server";
-import { buildSchemaSync } from "type-graphql";
+import 'reflect-metadata';
+import { PrismaClient } from '@prisma/client';
+import { ApolloServer } from 'apollo-server';
+import { buildSchemaSync } from 'type-graphql';
 
-import { Context } from "types";
-import { DeviceResolver } from "device";
+import { Context } from 'types';
+import { DeviceResolver } from 'device';
 import {
   NanoleafAuthTokenResolver,
   NanoleafEffectsResolver,
   NanoleafPanelResolver,
   NanoleafStateResolver,
   NanoleafUserResolver,
-} from "nanoleaf";
-import { UserResolver } from "user";
+} from 'nanoleaf';
+import { UserResolver } from 'user';
 
 const PORT = 4000;
 const prisma = new PrismaClient();
 
 const schema = buildSchemaSync({
+  emitSchemaFile: true,
   resolvers: [
     DeviceResolver,
     NanoleafAuthTokenResolver,
