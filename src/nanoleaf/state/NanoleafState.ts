@@ -1,6 +1,6 @@
-import { ObjectType, Field } from "type-graphql";
+import { ObjectType, Field } from 'type-graphql';
 
-import { NanoleafStateValueProps } from "types";
+import { NanoleafStateValueProps } from 'types';
 
 @ObjectType()
 class NanoleafStateValue {

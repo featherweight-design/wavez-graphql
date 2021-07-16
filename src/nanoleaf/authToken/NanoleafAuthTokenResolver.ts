@@ -5,17 +5,17 @@ import {
   Mutation,
   Resolver,
   Root,
-} from "type-graphql";
+} from 'type-graphql';
 
-import { Context } from "types";
-import NanoleafAuthToken from "./NanoleafAuthToken";
-import { NanoleafUser } from "nanoleaf/nanoleafUser";
-import { AuthenticateNewUserInput } from "../NanoleafInputs";
+import { Context } from 'types';
+import NanoleafAuthToken from './NanoleafAuthToken';
+import { NanoleafUser } from 'nanoleaf/nanoleafUser';
+import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
   authenticateWithNanoleafDevice,
   doesDeviceExistsByIpAddress,
   getAllPanelProperties,
-} from "../utils";
+} from '../utils';
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
@@ -33,10 +33,10 @@ class NanoleafAuthTokenResolver {
 
   @Mutation(() => String)
   async authenticateNewNanoleafUser(
-    @Arg("input") input: AuthenticateNewUserInput,
-    @Arg("userId") userId: string,
+    @Arg('input') input: AuthenticateNewUserInput,
+    @Arg('userId') userId: string,
     @Ctx() { prisma }: Context
-  ): Promise<String> {
+  ): Promise<string> {
     try {
       //* Check to see if a device with the same IP Address already exists
       doesDeviceExistsByIpAddress(prisma, input.ip);
@@ -78,7 +78,7 @@ class NanoleafAuthTokenResolver {
       await prisma.device.create({
         data: {
           ...input,
-          type: "NANOLEAF",
+          type: 'NANOLEAF',
           userId,
           nanoleafAuthToken: {
             connect: {
@@ -93,8 +93,8 @@ class NanoleafAuthTokenResolver {
               serialNo,
               effects: {
                 create: {
-                  ...effects
-                }
+                  ...effects,
+                },
               },
               authToken: {
                 connect: {
@@ -114,7 +114,7 @@ class NanoleafAuthTokenResolver {
 
   @Mutation(() => String)
   async deleteNanoleafAuthToken(
-    @Arg("id") id: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<string> {
     await prisma.nanoleafAuthToken.delete({

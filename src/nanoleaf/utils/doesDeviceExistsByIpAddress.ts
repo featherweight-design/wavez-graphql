@@ -1,6 +1,6 @@
-import { PrismaClient } from "@prisma/client";
-import { UserInputError } from "apollo-server";
-import { errors } from "nanoleaf/definitions";
+import { PrismaClient } from '@prisma/client';
+import { UserInputError } from 'apollo-server';
+import { errors } from 'nanoleaf/definitions';
 
 const doesDeviceExistsByIpAddress = async (
   prisma: PrismaClient,

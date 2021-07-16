@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
-import { NanoleafStateProps } from "types";
-import { constants } from "nanoleaf/definitions";
+import { NanoleafStateProps } from 'types';
+import { constants } from 'nanoleaf/definitions';
 
 const { endpoints } = constants;
 
@@ -15,7 +15,7 @@ const checkForOnState = (body: NanoleafStateProps) => {
   if (body.on) {
     return {
       on: {
-        value: body.on.value === "true",
+        value: body.on.value === 'true',
       },
     };
   }
@@ -30,7 +30,7 @@ const updateCurrentState = async (
 ): Promise<void> => {
   try {
     await fetch(endpoints.update.state(ipAddress, authToken), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(checkForOnState(body)),
     });
   } catch (error) {

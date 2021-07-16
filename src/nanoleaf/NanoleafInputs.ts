@@ -1,6 +1,6 @@
-import { Field, InputType } from "type-graphql";
+import { Field, InputType } from 'type-graphql';
 
-import { NanoleafStateValueProps } from "types";
+import { NanoleafStateValueProps } from 'types';
 
 @InputType()
 class AuthenticateNewUserInput {

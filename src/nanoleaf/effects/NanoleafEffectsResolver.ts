@@ -1,4 +1,4 @@
-import { UserInputError } from "apollo-server";
+import { UserInputError } from 'apollo-server';
 import {
   Arg,
   Ctx,
@@ -7,12 +7,12 @@ import {
   Query,
   Resolver,
   Root,
-} from "type-graphql";
+} from 'type-graphql';
 
-import { Context } from "types";
-import NanoleafEffects from "./NanoleafEffects";
-import { NanoleafPanel } from "nanoleaf/panel";
-import { getEffectsList, updateCurrentEffect } from "nanoleaf/utils";
+import { Context } from 'types';
+import NanoleafEffects from './NanoleafEffects';
+import { NanoleafPanel } from 'nanoleaf/panel';
+import { getEffectsList, updateCurrentEffect } from 'nanoleaf/utils';
 
 @Resolver(NanoleafEffects)
 class NanoleafEffectsResolver {
@@ -32,7 +32,7 @@ class NanoleafEffectsResolver {
 
   @Query(() => [String])
   async getPanelEffectsList(
-    @Arg("deviceId") deviceId: string,
+    @Arg('deviceId') deviceId: string,
     @Ctx() { prisma }: Context
   ): Promise<string[]> {
     // TODO: Migrate to utility
@@ -44,7 +44,7 @@ class NanoleafEffectsResolver {
     });
 
     if (!deviceProperties || !deviceProperties.nanoleafAuthToken) {
-      throw new UserInputError("Bad");
+      throw new UserInputError('Bad');
     }
 
     const { ip, nanoleafAuthToken } = deviceProperties;
@@ -56,8 +56,8 @@ class NanoleafEffectsResolver {
 
   @Mutation(() => Boolean)
   async updateCurrentEffectByDeviceId(
-    @Arg("deviceId") deviceId: string,
-    @Arg("effectName") effectName: string,
+    @Arg('deviceId') deviceId: string,
+    @Arg('effectName') effectName: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     // TODO: Migrate to utility
@@ -69,7 +69,7 @@ class NanoleafEffectsResolver {
     });
 
     if (!deviceProperties || !deviceProperties.nanoleafAuthToken) {
-      throw new UserInputError("Bad");
+      throw new UserInputError('Bad');
     }
 
     const { ip, nanoleafAuthToken } = deviceProperties;
@@ -83,18 +83,18 @@ class NanoleafEffectsResolver {
 
   @Mutation(() => Boolean)
   async updateCurrentEffectAll(
-    @Arg("userId") userId: string,
-    @Arg("effectName") effectName: string,
+    @Arg('userId') userId: string,
+    @Arg('effectName') effectName: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     // TODO: Update to utility
     const devices = await prisma.device.findMany({
-      where: { userId: userId, type: "NANOLEAF" },
+      where: { userId: userId, type: 'NANOLEAF' },
       include: { nanoleafAuthToken: true },
     });
 
     if (!devices.length) {
-      throw new UserInputError("Bad");
+      throw new UserInputError('Bad');
     }
 
     devices.forEach(async ({ ip, nanoleafAuthToken }) => {

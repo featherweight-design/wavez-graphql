@@ -1,6 +1,6 @@
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 
-import { constants } from "nanoleaf/definitions";
+import { constants } from 'nanoleaf/definitions';
 
 const { endpoints } = constants;
 
@@ -15,7 +15,7 @@ const updateCurrentEffect = async (
 ): Promise<void> => {
   try {
     await fetch(endpoints.update.effect(ipAddress, authToken), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(body),
     });
   } catch (error) {

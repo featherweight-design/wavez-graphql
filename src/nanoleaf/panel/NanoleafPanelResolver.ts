@@ -1,7 +1,7 @@
-import { Arg, Ctx, Query, Resolver } from "type-graphql";
-import { Context } from "types";
+import { Arg, Ctx, Query, Resolver } from 'type-graphql';
+import { Context } from 'types';
 
-import NanoleafPanel from "./NanoleafPanel";
+import NanoleafPanel from './NanoleafPanel';
 
 @Resolver(NanoleafPanel)
 class NanoleafPanelResolver {
@@ -16,7 +16,7 @@ class NanoleafPanelResolver {
 
   @Query(() => NanoleafPanel)
   async getNanoleafPanelById(
-    @Arg("id") id: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<NanoleafPanel | null> {
     const panel = await prisma.nanoleafProperties.findUnique({

@@ -1,8 +1,8 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 
-import { Context } from "types";
-import User from "./User";
-import { CreateUserInput } from "./UserInputs";
+import { Context } from 'types';
+import User from './User';
+import { CreateUserInput } from './UserInputs';
 
 @Resolver(User)
 class UserResolver {
@@ -15,7 +15,7 @@ class UserResolver {
 
   @Query(() => User, { nullable: true })
   async getUserById(
-    @Arg("id") id: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<User | null> {
     const user = await prisma.user.findUnique({ where: { id } });
@@ -25,7 +25,7 @@ class UserResolver {
 
   @Mutation(() => User)
   async createUser(
-    @Arg("input") input: CreateUserInput,
+    @Arg('input') input: CreateUserInput,
     @Ctx() { prisma }: Context
   ): Promise<User> {
     const user = prisma.user.create({

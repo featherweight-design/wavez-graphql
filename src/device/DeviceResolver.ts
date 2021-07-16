@@ -1,9 +1,9 @@
-import { DeviceType } from "@prisma/client";
-import { Arg, Query, Resolver } from "type-graphql";
-import find from "local-devices";
+import { DeviceType } from '@prisma/client';
+import { Arg, Query, Resolver } from 'type-graphql';
+import find from 'local-devices';
 
 import { DeviceMacSubstringByType } from 'types';
-import Device, { WifiDevice } from "./Device";
+import Device, { WifiDevice } from './Device';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
@@ -19,15 +19,12 @@ class DeviceResolver {
 
   @Query(() => [WifiDevice])
   async discoverWifiDevicesByType(
-    @Arg("type") type: DeviceType
+    @Arg('type') type: DeviceType
   ): Promise<WifiDevice[]> {
     const devices = await this.discoverWifiDevices();
 
     const filteredDevices = devices.filter((device: WifiDevice) => {
-      const match = findeDeviceByType(
-        device,
-        DeviceMacSubstringByType[type as DeviceType]
-      );
+      const match = findeDeviceByType(device, DeviceMacSubstringByType[type]);
 
       return match;
     });

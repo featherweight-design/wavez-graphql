@@ -1,17 +1,17 @@
-import { UserInputError } from "apollo-server-errors";
-import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
+import { UserInputError } from 'apollo-server-errors';
+import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 
-import { Context } from "types";
-import { updateCurrentState } from "nanoleaf/utils";
-import { NanoleafState } from "./NanoleafState";
-import { NanoleafStateInput } from "nanoleaf/NanoleafInputs";
+import { Context } from 'types';
+import { updateCurrentState } from 'nanoleaf/utils';
+import { NanoleafState } from './NanoleafState';
+import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
 
 @Resolver(NanoleafState)
 class NanoleafStateResolver {
   @Mutation(() => Boolean)
   async updateCurrentStateByDeviceId(
-    @Arg("deviceId") deviceId: string,
-    @Arg("stateInput") stateInput: NanoleafStateInput,
+    @Arg('deviceId') deviceId: string,
+    @Arg('stateInput') stateInput: NanoleafStateInput,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     const deviceProperties = await prisma.device.findUnique({
@@ -20,7 +20,7 @@ class NanoleafStateResolver {
     });
 
     if (!deviceProperties || !deviceProperties.nanoleafAuthToken) {
-      throw new UserInputError("Bad");
+      throw new UserInputError('Bad');
     }
 
     const { ip, nanoleafAuthToken } = deviceProperties;
@@ -32,18 +32,18 @@ class NanoleafStateResolver {
 
   @Mutation(() => Boolean)
   async updateCurrentStateAll(
-    @Arg("stateInput") stateInput: NanoleafStateInput,
-    @Arg("userId") userId: string,
+    @Arg('stateInput') stateInput: NanoleafStateInput,
+    @Arg('userId') userId: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     // TODO: Update to utility
     const devices = await prisma.device.findMany({
-      where: { userId: userId, type: "NANOLEAF" },
+      where: { userId: userId, type: 'NANOLEAF' },
       include: { nanoleafAuthToken: true },
     });
 
     if (!devices.length) {
-      throw new UserInputError("Bad");
+      throw new UserInputError('Bad');
     }
 
     devices.forEach(async ({ ip, nanoleafAuthToken }) => {

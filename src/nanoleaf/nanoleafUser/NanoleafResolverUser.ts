@@ -1,9 +1,9 @@
-import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from "type-graphql";
+import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
 
-import { Context } from "types";
-import { User } from "user";
+import { Context } from 'types';
+import { User } from 'user';
 import { NanoleafAuthToken } from 'nanoleaf/authToken';
-import NanoleafUser from "./NanoleafUser";
+import NanoleafUser from './NanoleafUser';
 
 @Resolver(NanoleafUser)
 class NanoleafUserResolver {
@@ -42,7 +42,7 @@ class NanoleafUserResolver {
 
   @Query(() => NanoleafUser)
   async getNanoleafUserById(
-    @Arg("id") id: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<NanoleafUser | null> {
     const nanoleafUser = await prisma.nanoleafUser.findUnique({
