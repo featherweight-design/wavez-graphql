@@ -7,6 +7,8 @@
     "clean": "rm -rf node_modules yarn.lock && yarn install",
     "start": "ts-node-dev --respawn -r tsconfig-paths/register src/server.ts",
     "generate": "npx prisma generate",
+    "format": "prettier --write \"src/**/*.ts?(x)\"",
+    "lint": "eslint './src/**/*.{js,ts}' --fix",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:reset": "npx prisma migrate reset",
     "studio": "npx prisma studio"
@@ -17,6 +19,14 @@
   "devDependencies": {
     "@types/node": "^16.0.0",
     "@types/node-fetch": "^2.5.10",
+    "@typescript-eslint/eslint-plugin": "^4.28.3",
+    "@typescript-eslint/parser": "^4.28.3",
+    "eslint": "^7.30.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^2.4.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-type-graphql": "^0.3.0",
+    "prettier": "^2.3.2",
     "prisma": "^2.26.0",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.9.0",
