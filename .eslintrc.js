@@ -41,6 +41,13 @@ module.exports = {
     'comma-dangle': 'off',
     // Turns off rule that conflicts with Prettier
     'object-curly-newline': 'off',
+    // Allows for iterable Promises with void return
+    '@typescript-eslint/no-misused-promises': [
+      'error',
+      {
+        checksVoidReturn: false,
+      },
+    ],
   },
   settings: {
     'import/resolver': {
