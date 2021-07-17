@@ -45,9 +45,6 @@ class DeviceResolver {
     return filteredDevices;
   }
 
-  // Necessary workaround due to TypeGraphQL-Prisma mistmatch
-  // with DeviceType and DeviceTypeEnum issue with enum types
-  // eslint-disable-next-line type-graphql/wrong-decorator-signature
   @Query(() => [Device])
   async getAllDevicesByUserId(
     @Arg('userId') userId: string,
@@ -60,6 +57,20 @@ class DeviceResolver {
     });
 
     return devices;
+  }
+
+  @Query(() => Device, { nullable: true })
+  async getDeviceById(
+    @Arg('id') id: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Device | null> {
+    const device = await prisma.device.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return device;
   }
 }
 
