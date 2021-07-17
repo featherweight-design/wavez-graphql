@@ -22,14 +22,11 @@ module.exports = {
     // Uses the recommended rules from @typescript-eslint/eslint-plugin
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    // Uses the recommended rules from type-graphql plugin
-    'plugin:type-graphql/recommended',
     // Enables eslint-plugin-prettier and eslint-config-prettier.
     // This will display prettier errors as ESLint errors.
     // Make sure this is always the last configuration in the extends array.
     'plugin:prettier/recommended',
   ],
-  plugins: ['type-graphql'],
   rules: {
     // Place to specify ESLint rules. Can be used to overwrite rules
     // specified from the extended configs
