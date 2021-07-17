@@ -1,5 +1,13 @@
 import Prisma from '.prisma/client';
-import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from 'type-graphql';
 import find from 'local-devices';
 
 import { Context, DeviceMacSubstringByType } from 'types';
@@ -68,6 +76,24 @@ class DeviceResolver {
     const device = await prisma.device.findUnique({
       where: {
         id,
+      },
+    });
+
+    return device;
+  }
+
+  @Mutation(() => Device, { nullable: true })
+  async updateDeviceNameById(
+    @Arg('id') id: string,
+    @Arg('name') name: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Device | null> {
+    const device = await prisma.device.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
       },
     });
 
