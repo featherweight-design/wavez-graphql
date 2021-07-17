@@ -18,7 +18,7 @@ const PORT = 4000;
 const prisma = new PrismaClient();
 
 const schema = buildSchemaSync({
-  emitSchemaFile: true,
+  // emitSchemaFile: true,
   resolvers: [
     DeviceResolver,
     NanoleafAuthTokenResolver,
