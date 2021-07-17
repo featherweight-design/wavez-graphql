@@ -45,6 +45,8 @@ class DeviceResolver {
     return filteredDevices;
   }
 
+  // Necessary workaround due to TypeGraphQL-Prisma mistmatch
+  // with DeviceType and DeviceTypeEnum issue with enum types
   // eslint-disable-next-line type-graphql/wrong-decorator-signature
   @Query(() => [Device])
   async getAllDevicesByUserId(

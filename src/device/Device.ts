@@ -6,6 +6,7 @@ registerEnumType(DeviceTypeEnum, {
   name: 'DeviceTypeEnum',
   description: "Device type as one of: 'NANOLEAF', 'LIFX', 'HUE'",
 });
+
 @ObjectType()
 class WifiDevice {
   @Field()
