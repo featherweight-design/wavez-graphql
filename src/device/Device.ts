@@ -1,11 +1,5 @@
-import { Field, ID, ObjectType, registerEnumType } from 'type-graphql';
-
-import { DeviceTypeEnum } from 'types';
-
-registerEnumType(DeviceTypeEnum, {
-  name: 'DeviceTypeEnum',
-  description: "Device type as one of: 'NANOLEAF', 'LIFX', 'HUE'",
-});
+import { DeviceType } from '@prisma/client';
+import { Field, ID, ObjectType } from 'type-graphql';
 
 @ObjectType()
 class WifiDevice {
@@ -24,8 +18,11 @@ class Device extends WifiDevice {
   @Field(() => ID)
   id: string;
 
-  @Field(() => DeviceTypeEnum)
-  type: DeviceTypeEnum;
+  @Field()
+  type: DeviceType;
+
+  @Field()
+  userId: string;
 }
 
 export { Device, WifiDevice };
