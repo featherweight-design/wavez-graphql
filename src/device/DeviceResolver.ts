@@ -2,9 +2,10 @@ import Prisma from '.prisma/client';
 import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
 import find from 'local-devices';
 
-import { Context, DeviceMacSubstringByType, DeviceTypeEnum } from 'types';
+import { Context, DeviceMacSubstringByType } from 'types';
 import { Device, WifiDevice } from './Device';
 import { User } from 'user';
+import { DeviceType } from '@prisma/client';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
@@ -32,7 +33,7 @@ class DeviceResolver {
 
   @Query(() => [WifiDevice])
   async discoverWifiDevicesByType(
-    @Arg('type') type: DeviceTypeEnum
+    @Arg('type') type: DeviceType
   ): Promise<WifiDevice[]> {
     const devices = await this.discoverWifiDevices();
 
