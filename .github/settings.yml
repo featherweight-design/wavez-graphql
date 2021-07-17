@@ -1,0 +1,79 @@
+# These settings are synced to GitHub by https://probot.github.io/apps/settings/
+
+repository:
+  # See https://developer.github.com/v3/repos/#edit for all available settings.
+
+  # The name of the repository. Changing this will rename the repository
+  # name:
+
+  # A short description of the repository that will show up on GitHub
+  # description:
+
+  # Either `true` to make the repository private, or `false` to make it public.
+  private: false
+
+# Labels: define labels for Issues and Pull Requests
+labels:
+  - name: 🐛  Bug
+    color: '#d73a4a'
+    description: Something isn't working
+
+  - name: 🐳   Dependencies
+    color: '#A2F5FF'
+    description: Pull requests that update a dependency file
+
+  - name: 📝  Documentation
+    color: '#9AC4F8'
+    description: Improvements or additions to documentation
+
+  - name: 🍄 Duplicate
+    color: '#cfd3d7'
+    description: This issue or pull request already exists
+
+  - name: 🌟  Enhancement
+    color: '#00ffe5'
+    description: Make something better/more efficient
+
+  - name: 🏗  Feature development
+    color: '#DAF6FF'
+    description: Something new and shiny
+
+  - name: 🌱  Good first issue
+    color: '#99EDCC'
+    description: Good for newcomers
+
+  - name: 🙌  Help wanted
+    color: '#4B8F8C'
+    description: Extra attention is needed
+
+  - name: 🤔 Invalid
+    color: '#FEFFA5'
+    description: This doesn't seem right
+
+  - name: 🛠  Maintenance
+    color: '#3A6169'
+    description: Something needs refactoring/updating
+
+  - name: 🧠  Question
+    color: '#d876e3'
+    description: Further information is requested
+
+  - name: 🤓  Research
+    color: '#9a64d1'
+    description: Spike work for a proposed technology, upgrade, or degradation
+
+  - name:  🔒 Security
+    color: '#FF9F33'
+    description: Security patch or vulnerability update
+
+  - name: 💅  Styling
+    color: '#F7B5D6'
+    description: Styles need to be added, improved, or updated
+
+  - name: 🧪 Testing
+    color: '#BFDADB'
+    description: New or updates tests and testing infrastructure
+
+  - name: 😶  Wontfix
+    color: '#ffffff'
+    description: This will not be worked on
