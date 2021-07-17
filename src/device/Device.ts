@@ -1,6 +1,5 @@
 import { Field, ID, ObjectType, registerEnumType } from 'type-graphql';
 
-import { User } from 'user';
 import { DeviceTypeEnum } from 'types';
 
 registerEnumType(DeviceTypeEnum, {
@@ -26,12 +25,6 @@ class Device extends WifiDevice {
 
   @Field(() => DeviceTypeEnum)
   type: DeviceTypeEnum;
-
-  @Field()
-  user: User;
-
-  @Field()
-  userId: string;
 }
 
 export { Device, WifiDevice };
