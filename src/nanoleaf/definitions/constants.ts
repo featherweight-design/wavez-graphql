@@ -1,16 +1,17 @@
 const endpoints = {
-  baseApi: (ipAddress: string) => `http://${ipAddress}:16021/api/v1`,
-  authenticate: (ipAddress: string) => `${endpoints.baseApi(ipAddress)}/new`,
+  baseApi: (ipAddress: string): string => `http://${ipAddress}:16021/api/v1`,
+  authenticate: (ipAddress: string): string =>
+    `${endpoints.baseApi(ipAddress)}/new`,
   get: {
-    effectsList: (ipAddress: string, authToken: string) =>
+    effectsList: (ipAddress: string, authToken: string): string =>
       `${endpoints.baseApi(ipAddress)}/${authToken}/effects/effectsList`,
-    properties: (ipAddress: string, authToken: string) =>
+    properties: (ipAddress: string, authToken: string): string =>
       `${endpoints.baseApi(ipAddress)}/${authToken}`,
   },
   update: {
-    effect: (ipAddress: string, authToken: string) =>
+    effect: (ipAddress: string, authToken: string): string =>
       `${endpoints.baseApi(ipAddress)}/${authToken}/effects`,
-    state: (ipAddress: string, authToken: string) =>
+    state: (ipAddress: string, authToken: string): string =>
       `${endpoints.baseApi(ipAddress)}/${authToken}/state`,
   },
 };

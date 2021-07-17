@@ -1,6 +1,6 @@
 import { ObjectType, Field } from 'type-graphql';
 
-import { NanoleafStateValueProps } from 'types';
+// import { NanoleafStateValueProps } from 'types';
 
 @ObjectType()
 class NanoleafStateValue {
@@ -16,22 +16,22 @@ class NanoleafStateValue {
 
 @ObjectType()
 class NanoleafState {
-  @Field(() => NanoleafStateValue)
-  on?: NanoleafStateValueProps;
+  @Field(() => NanoleafStateValue, { nullable: true })
+  on: NanoleafStateValue | null;
 
-  @Field(() => NanoleafStateValue)
-  brightness?: NanoleafStateValueProps;
+  @Field(() => NanoleafStateValue, { nullable: true })
+  brightness: NanoleafStateValue | null;
 
-  @Field(() => NanoleafStateValue)
-  hue?: NanoleafStateValueProps;
+  @Field(() => NanoleafStateValue, { nullable: true })
+  hue: NanoleafStateValue | null;
 
-  @Field(() => NanoleafStateValue)
-  sat?: NanoleafStateValueProps;
+  @Field(() => NanoleafStateValue, { nullable: true })
+  sat: NanoleafStateValue | null;
 
-  @Field(() => NanoleafStateValue)
-  ct?: NanoleafStateValueProps;
+  @Field(() => NanoleafStateValue, { nullable: true })
+  ct: NanoleafStateValue | null;
 
-  @Field()
+  @Field({ nullable: true })
   colorMode?: string;
 }
 

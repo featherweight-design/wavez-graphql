@@ -19,8 +19,8 @@ const authenticateWithNanoleafDevice = async (
     throw new UserInputError(error.message, error);
   }
 
-  const { auth_token: authToken }: NanoleafAuthenticationResponse =
-    await response.json();
+  const { auth_token: authToken } =
+    (await response.json()) as NanoleafAuthenticationResponse;
 
   return authToken;
 };

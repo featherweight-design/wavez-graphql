@@ -5,7 +5,7 @@ import { errors } from 'nanoleaf/definitions';
 const doesDeviceExistsByIpAddress = async (
   prisma: PrismaClient,
   ipAddress: string
-) => {
+): Promise<void> => {
   const doesDeviceExist = await prisma.device.findUnique({
     where: {
       ip: ipAddress,

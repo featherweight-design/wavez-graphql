@@ -39,7 +39,7 @@ class NanoleafAuthTokenResolver {
   ): Promise<string> {
     try {
       //* Check to see if a device with the same IP Address already exists
-      doesDeviceExistsByIpAddress(prisma, input.ip);
+      await doesDeviceExistsByIpAddress(prisma, input.ip);
 
       const token = await authenticateWithNanoleafDevice(input.ip);
 

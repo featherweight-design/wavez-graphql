@@ -11,7 +11,7 @@ const getAllPanelProperties = async (
 ): Promise<NanoleafPanelProps> => {
   const response = await fetch(endpoints.get.properties(ipAddress, authToken));
 
-  const properties = response.json();
+  const properties = (await response.json()) as NanoleafPanelProps;
 
   return properties;
 };

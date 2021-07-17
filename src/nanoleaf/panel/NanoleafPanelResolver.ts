@@ -14,7 +14,7 @@ class NanoleafPanelResolver {
     return panels;
   }
 
-  @Query(() => NanoleafPanel)
+  @Query(() => NanoleafPanel, { nullable: true })
   async getNanoleafPanelById(
     @Arg('id') id: string,
     @Ctx() { prisma }: Context

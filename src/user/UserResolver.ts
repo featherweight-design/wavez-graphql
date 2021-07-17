@@ -6,7 +6,7 @@ import { CreateUserInput } from './UserInputs';
 
 @Resolver(User)
 class UserResolver {
-  @Query(() => [User], { nullable: true })
+  @Query(() => [User])
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
     const users = await prisma.user.findMany();
 

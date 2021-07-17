@@ -40,7 +40,7 @@ class NanoleafUserResolver {
     return nanoleafUsers;
   }
 
-  @Query(() => NanoleafUser)
+  @Query(() => NanoleafUser, { nullable: true })
   async getNanoleafUserById(
     @Arg('id') id: string,
     @Ctx() { prisma }: Context

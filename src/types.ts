@@ -5,10 +5,22 @@ export interface Context extends ApolloContext {
   prisma: PrismaClient;
 }
 
+export enum DeviceTypeEnum {
+  NANOLEAF = 'NANOLEAF',
+  LIFX = 'LIFX',
+  HUE = 'HUE',
+}
+
 export enum DeviceMacSubstringByType {
   NANOLEAF = '02:55:da',
   LIFX = 'd0:73:d5',
   HUE = 'ECB5',
+}
+
+export interface ErrorResponse {
+  status: number;
+  message: string;
+  friendlyMessage: string;
 }
 
 export interface NanoleafAuthenticationResponse {

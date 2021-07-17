@@ -1,7 +1,4 @@
 import { Field, InputType } from 'type-graphql';
-
-import { NanoleafStateValueProps } from 'types';
-
 @InputType()
 class AuthenticateNewUserInput {
   @Field()
@@ -29,19 +26,19 @@ class NanoleafStateValueInput {
 @InputType()
 class NanoleafStateInput {
   @Field(() => NanoleafStateValueInput, { nullable: true })
-  on?: NanoleafStateValueProps;
+  on?: NanoleafStateValueInput | null;
 
   @Field(() => NanoleafStateValueInput, { nullable: true })
-  brightness?: NanoleafStateValueProps;
+  brightness?: NanoleafStateValueInput | null;
 
   @Field(() => NanoleafStateValueInput, { nullable: true })
-  hue?: NanoleafStateValueProps;
+  hue?: NanoleafStateValueInput | null;
 
   @Field(() => NanoleafStateValueInput, { nullable: true })
-  sat?: NanoleafStateValueProps;
+  sat?: NanoleafStateValueInput | null;
 
   @Field(() => NanoleafStateValueInput, { nullable: true })
-  ct?: NanoleafStateValueProps;
+  ct?: NanoleafStateValueInput | null;
 
   @Field({ nullable: true })
   colorMode?: string;

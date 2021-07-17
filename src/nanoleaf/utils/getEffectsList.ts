@@ -10,7 +10,7 @@ const getEffectsList = async (
 ): Promise<string[]> => {
   const response = await fetch(endpoints.get.effectsList(ipAddress, authToken));
 
-  const effectsList = response.json();
+  const effectsList = (await response.json()) as string[];
 
   return effectsList;
 };

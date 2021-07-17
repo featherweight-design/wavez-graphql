@@ -35,7 +35,7 @@ const server = new ApolloServer({
   context: (): Context => ({ prisma }),
 });
 
-server.listen(PORT, () =>
+void server.listen(PORT, () =>
   console.log(`🚀  Server running on http://localhost:${PORT}/graphql`)
 );
 

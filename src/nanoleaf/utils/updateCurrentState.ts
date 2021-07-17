@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
-import { NanoleafStateProps } from 'types';
 import { constants } from 'nanoleaf/definitions';
+import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
 
 const { endpoints } = constants;
 
@@ -11,7 +11,7 @@ const { endpoints } = constants;
  * state. This converts it to a boolen for the Nanoleaf API.
  * See: https://github.com/MichalLytek/type-graphql/issues/384
  */
-const checkForOnState = (body: NanoleafStateProps) => {
+const checkForOnState = (body: NanoleafStateInput) => {
   if (body.on) {
     return {
       on: {
@@ -26,7 +26,7 @@ const checkForOnState = (body: NanoleafStateProps) => {
 const updateCurrentState = async (
   ipAddress: string,
   authToken: string,
-  body: NanoleafStateProps
+  body: NanoleafStateInput
 ): Promise<void> => {
   try {
     await fetch(endpoints.update.state(ipAddress, authToken), {
