@@ -99,6 +99,26 @@ class DeviceResolver {
 
     return device;
   }
+
+  @Mutation(() => Boolean)
+  async deleteDeviceById(
+    @Arg('id') id: string,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      await prisma.device.delete({
+        where: {
+          id,
+        },
+      });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      return false;
+    }
+  }
 }
 
 export default DeviceResolver;
