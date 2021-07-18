@@ -17,6 +17,7 @@ export interface ErrorResponse {
   friendlyMessage: string;
 }
 
+//* Nanoleaf
 export interface NanoleafAuthenticationResponse {
   auth_token: string;
 }
@@ -47,4 +48,30 @@ export interface NanoleafStateProps {
   sat?: NanoleafStateValueProps;
   ct?: NanoleafStateValueProps;
   colorMode?: string;
+}
+
+export interface NanoleafEffectResponse {
+  animName: string;
+  loop: boolean;
+  palette: NanoleafEffectResponseColor[];
+  transTime: NanoleafEffectResponseRange;
+  windowSize: number;
+  flowFactor: number;
+  delayTime: NanoleafEffectResponseRange;
+  colorType: string;
+  animType: string;
+  explodeFactor: number;
+  brightnessRange: NanoleafEffectResponseRange;
+  direction: string;
+}
+
+export interface NanoleafEffectResponseColor {
+  hue: number;
+  saturation: number;
+  brightness: number;
+}
+
+export interface NanoleafEffectResponseRange {
+  maxValue: number;
+  minValue: number;
 }
