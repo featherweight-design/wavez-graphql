@@ -17,4 +17,6 @@
 
 ## Sanity Checks
 
-- [ ] There are no incidental style changes
+- [ ] All tests are passing
+- [ ] There are no linting errors
+- [ ] There are no build errors
