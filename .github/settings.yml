@@ -54,6 +54,18 @@ labels:
     color: '#3A6169'
     description: Something needs refactoring/updating
 
+  - name: 🍃 Nanoleaf
+    color: '#3FAE29'
+    description: See you next fall!
+
+  - name: 💡 LIFX
+    color: '#440099'
+    description: G'day, mate!
+
+  - name: 🎨 Hue
+    color: '#FDA9E4'
+    description: Nice to meet hue
+
   - name: 🧠  Question
     color: '#d876e3'
     description: Further information is requested
