@@ -114,6 +114,7 @@ model HueProperties {
 //* Color Palette
 model Palette {
   id      String             @id @default(uuid())
+  name    String             @unique
   colors  PalettesOnColors[]
   effects Effect[]
 }
