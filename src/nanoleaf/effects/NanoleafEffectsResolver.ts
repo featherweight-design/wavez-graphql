@@ -12,7 +12,11 @@ import {
 import { Context } from 'types';
 import NanoleafEffects from './NanoleafEffects';
 import { NanoleafPanel } from 'nanoleaf/panel';
-import { getEffectsList, updateCurrentEffect } from 'nanoleaf/utils';
+import {
+  getAllEffectsDetails,
+  getEffectsList,
+  updateCurrentEffect,
+} from 'nanoleaf/utils';
 
 @Resolver(NanoleafEffects)
 class NanoleafEffectsResolver {
@@ -52,6 +56,32 @@ class NanoleafEffectsResolver {
     const effectsList = await getEffectsList(ip, nanoleafAuthToken.token);
 
     return effectsList;
+  }
+
+  @Query(() => String, { nullable: true })
+  async getPanelEffectsDetails(
+    @Arg('deviceId') deviceId: string,
+    @Ctx() { prisma }: Context
+  ): Promise<void> {
+    const device = await prisma.device.findUnique({
+      where: { id: deviceId },
+      include: {
+        nanoleafAuthToken: true,
+      },
+    });
+
+    if (!device || !device.nanoleafAuthToken) {
+      throw new UserInputError('Bad');
+    }
+
+    const { ip, nanoleafAuthToken } = device;
+
+    const detailedEffectsList = await getAllEffectsDetails(
+      ip,
+      nanoleafAuthToken.token
+    );
+
+    console.log(detailedEffectsList);
   }
 
   @Mutation(() => Boolean)
