@@ -50,6 +50,10 @@ export interface NanoleafStateProps {
   colorMode?: string;
 }
 
+export interface NanoleafAllEffectsResponse {
+  animations: NanoleafEffectResponse[];
+}
+
 export interface NanoleafEffectResponse {
   animName: string;
   loop: boolean;
