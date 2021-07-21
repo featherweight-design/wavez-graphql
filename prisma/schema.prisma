@@ -62,31 +62,32 @@ model NanoleafAuthToken {
 }
 
 model NanoleafProperties {
-  id              String             @id @default(uuid())
+  id              String                       @id @default(uuid())
   name            String
-  serialNo        String             @unique
+  serialNo        String                       @unique
   firmwareVersion String
   model           String
-  effectsList     String[]
+  effects         NanoleafPropertiesOnEffect[]
   authToken       NanoleafAuthToken?
   deviceId        String
-  device          Device             @relation(fields: [deviceId], references: [id])
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  device          Device                       @relation(fields: [deviceId], references: [id])
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
 }
 
 model NanoleafEffect {
-  id            String                 @id @default(uuid())
-  animName      String                 @unique
+  id            String                       @id @default(uuid())
+  animName      String                       @unique
   animType      String
   colorType     String
   paletteId     String
-  palette       Palette                @relation(fields: [paletteId], references: [id])
+  palette       Palette                      @relation(fields: [paletteId], references: [id])
   pluginType    String
   pluginUuid    String
   pluginOptions NanoleafPluginOption[]
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
+  properties    NanoleafPropertiesOnEffect[]
+  createdAt     DateTime                     @default(now())
+  updatedAt     DateTime                     @updatedAt
 }
 
 model NanoleafPluginOption {
@@ -97,6 +98,17 @@ model NanoleafPluginOption {
   effect    NanoleafEffect @relation(fields: [effectId], references: [id])
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+}
+
+model NanoleafPropertiesOnEffect {
+  propertiesId String
+  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
+  effectId     String
+  effect       NanoleafEffect     @relation(fields: [effectId], references: [id])
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@id([propertiesId, effectId])
 }
 
 //* Lifx
@@ -128,11 +140,11 @@ model Palette {
 }
 
 model Color {
-  id            String             @id @default(uuid())
-  hue           Int
-  saturation    Int
-  brightness    Int
-  ColorPalettes PalettesOnColors[]
+  id         String             @id @default(uuid())
+  hue        Int
+  saturation Int
+  brightness Int
+  palettes   PalettesOnColors[]
 }
 
 model PalettesOnColors {
