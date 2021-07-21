@@ -12,13 +12,13 @@ generator client {
 
 //* User
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  nanoleafUser NanoleafUser?
-  devices      Device[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id         String              @id @default(uuid())
+  email      String              @unique
+  name       String?
+  devices    Device[]
+  authTokens NanoleafAuthToken[]
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
 }
 
 //* Device
@@ -38,8 +38,6 @@ model Device {
   user                 User                @relation(fields: [userId], references: [id])
   nanoleafAuthTokenId  String?             @unique
   nanoleafAuthToken    NanoleafAuthToken?
-  nanoleafUserId       String?
-  NanoleafUser         NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
   nanoleafPropertiesId String?             @unique
   nanoleafProperties   NanoleafProperties?
   lifxPropertiesId     String?             @unique
@@ -50,28 +48,17 @@ model Device {
   updatedAt            DateTime            @updatedAt
 }
 
-//* Nanoleaf
-model NanoleafUser {
-  id         String              @id @default(uuid())
-  authTokens NanoleafAuthToken[]
-  devices    Device[]
-  userId     String              @unique
-  user       User                @relation(fields: [userId], references: [id])
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
-}
-
 model NanoleafAuthToken {
-  id             String              @id @default(uuid())
-  token          String              @unique
-  deviceId       String?             @unique
-  device         Device?             @relation(fields: [deviceId], references: [id])
-  panelId        String?             @unique
-  panel          NanoleafProperties? @relation(fields: [panelId], references: [id])
-  nanoleafUserId String?
-  nanoleafUser   NanoleafUser?       @relation(fields: [nanoleafUserId], references: [id])
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id        String              @id @default(uuid())
+  token     String              @unique
+  deviceId  String?             @unique
+  device    Device?             @relation(fields: [deviceId], references: [id])
+  panelId   String?             @unique
+  panel     NanoleafProperties? @relation(fields: [panelId], references: [id])
+  userId    String?
+  User      User?               @relation(fields: [userId], references: [id])
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 }
 
 model NanoleafProperties {
@@ -80,7 +67,7 @@ model NanoleafProperties {
   serialNo        String             @unique
   firmwareVersion String
   model           String
-  effects         NanoleafEffects?
+  effectsList     String[]
   authToken       NanoleafAuthToken?
   deviceId        String
   device          Device             @relation(fields: [deviceId], references: [id])
@@ -88,79 +75,73 @@ model NanoleafProperties {
   updatedAt       DateTime           @updatedAt
 }
 
-model NanoleafEffects {
-  select       String
-  effectsList  String[]
-  propertiesId String             @unique
-  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+model NanoleafEffect {
+  id            String                 @id @default(uuid())
+  animName      String                 @unique
+  animType      String
+  colorType     String
+  paletteId     String
+  palette       Palette                @relation(fields: [paletteId], references: [id])
+  pluginType    String
+  pluginUuid    String
+  pluginOptions NanoleafPluginOption[]
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+}
+
+model NanoleafPluginOption {
+  id        String         @id @default(uuid())
+  maxValue  Int
+  minValue  Int
+  effectId  String
+  effect    NanoleafEffect @relation(fields: [effectId], references: [id])
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 }
 
 //* Lifx
 model LifxProperties {
-  id       String  @id @default(uuid())
-  deviceId String  @unique
-  device   Device? @relation(fields: [deviceId], references: [id])
+  id        String   @id @default(uuid())
+  deviceId  String   @unique
+  device    Device?  @relation(fields: [deviceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //* Hue
 model HueProperties {
-  id       String  @id @default(uuid())
-  deviceId String  @unique
-  device   Device? @relation(fields: [deviceId], references: [id])
+  id        String   @id @default(uuid())
+  deviceId  String   @unique
+  device    Device?  @relation(fields: [deviceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //* Color Palette
 model Palette {
-  id      String             @id @default(uuid())
-  name    String             @unique
-  colors  PalettesOnColors[]
-  effects Effect[]
+  id             String             @id @default(uuid())
+  name           String             @unique
+  colors         PalettesOnColors[]
+  nanoleafEffect NanoleafEffect?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 }
 
 model Color {
   id            String             @id @default(uuid())
   hue           Int
   saturation    Int
-  Brightness    Int
+  brightness    Int
   ColorPalettes PalettesOnColors[]
 }
 
 model PalettesOnColors {
   paletteId String
-  palette   Palette @relation(fields: [paletteId], references: [id])
+  palette   Palette  @relation(fields: [paletteId], references: [id])
   colorId   String
-  color     Color   @relation(fields: [colorId], references: [id])
+  color     Color    @relation(fields: [colorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([paletteId, colorId])
-}
-
-model Effect {
-  id                String       @id @default(uuid())
-  name              String       @unique
-  loop              Boolean
-  paletteId         String
-  palette           Palette      @relation(fields: [paletteId], references: [id])
-  transTimeId       String?
-  transTime         EffectRange? @relation(name: "TransitionTime", fields: [transTimeId], references: [id])
-  windowSize        Int?
-  flowFactor        Int?
-  delayTimeId       String?
-  delayTime         EffectRange? @relation(name: "DelayTime", fields: [delayTimeId], references: [id])
-  colorTypes        String?
-  animType          String?
-  explodeFactor     Int?
-  brightnessRangeId String?
-  brightnessRange   EffectRange? @relation(name: "BrightnessRange", fields: [brightnessRangeId], references: [id])
-  direction         String?
-}
-
-model EffectRange {
-  id                     String   @id @default(uuid())
-  maxValue               Int
-  minValue               Int
-  effectTransTimes       Effect[] @relation("TransitionTime")
-  effectDelayTimes       Effect[] @relation("DelayTime")
-  effectBrightnessRanges Effect[] @relation("BrightnessRange")
 }
