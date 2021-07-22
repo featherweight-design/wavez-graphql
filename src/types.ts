@@ -51,31 +51,28 @@ export interface NanoleafStateProps {
 }
 
 export interface NanoleafAllEffectsResponse {
-  animations: NanoleafEffectResponse[];
+  animations: NanoLeafAnimationResponse[];
 }
 
-export interface NanoleafEffectResponse {
+export interface NanoLeafAnimationResponse {
+  version: string;
   animName: string;
-  loop: boolean;
-  palette: NanoleafEffectResponseColor[];
-  transTime: NanoleafEffectResponseRange;
-  windowSize: number;
-  flowFactor: number;
-  delayTime: NanoleafEffectResponseRange;
-  colorType: string;
   animType: string;
-  explodeFactor: number;
-  brightnessRange: NanoleafEffectResponseRange;
-  direction: string;
+  colorType: string;
+  palette: NanoleafColorResponse[];
+  pluginType: string;
+  pluginUuid: string;
+  pluginOptions?: NanoleafPluginOption[];
+  hasOverlay: boolean;
 }
 
-export interface NanoleafEffectResponseColor {
+export interface NanoleafPluginOption {
+  name: string;
+  value: number | string | boolean;
+}
+
+export interface NanoleafColorResponse {
   hue: number;
   saturation: number;
   brightness: number;
-}
-
-export interface NanoleafEffectResponseRange {
-  maxValue: number;
-  minValue: number;
 }
