@@ -20,14 +20,16 @@ import {
 
 @Resolver(NanoleafEffects)
 class NanoleafEffectsResolver {
-  @FieldResolver(() => NanoleafPanel)
+  @FieldResolver(() => [NanoleafPanel])
   async properties(
-    @Root() effects: NanoleafEffects,
+    @Root() effect: NanoleafEffects,
     @Ctx() { prisma }: Context
-  ): Promise<NanoleafPanel | null> {
-    const properties = await prisma.nanoleafEffects
+  ): Promise<NanoleafPanel[]> {
+    const properties = await prisma.nanoleafEffect
       .findUnique({
-        where: { propertiesId: effects.propertiesId },
+        where: {
+          id: effect.id,
+        },
       })
       .properties();
 
@@ -81,7 +83,11 @@ class NanoleafEffectsResolver {
       nanoleafAuthToken.token
     );
 
-    console.log(detailedEffectsList);
+    detailedEffectsList.animations.forEach(animation => {
+      if (animation.pluginOptions) {
+        console.log(animation.palette);
+      }
+    });
   }
 
   @Mutation(() => Boolean)
