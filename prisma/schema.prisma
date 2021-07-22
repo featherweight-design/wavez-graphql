@@ -56,7 +56,7 @@ model NanoleafAuthToken {
   panelId   String?             @unique
   panel     NanoleafProperties? @relation(fields: [panelId], references: [id])
   userId    String?
-  User      User?               @relation(fields: [userId], references: [id])
+  user      User?               @relation(fields: [userId], references: [id])
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 }
@@ -67,7 +67,7 @@ model NanoleafProperties {
   serialNo        String                       @unique
   firmwareVersion String
   model           String
-  effects         NanoleafPropertiesOnEffect[]
+  effects         NanoleafEffect[]
   authToken       NanoleafAuthToken?
   deviceId        String
   device          Device                       @relation(fields: [deviceId], references: [id])
@@ -85,7 +85,7 @@ model NanoleafEffect {
   pluginType    String
   pluginUuid    String
   pluginOptions NanoleafPluginOption[]
-  properties    NanoleafPropertiesOnEffect[]
+  properties    NanoleafProperties[]
   createdAt     DateTime                     @default(now())
   updatedAt     DateTime                     @updatedAt
 }
@@ -98,17 +98,6 @@ model NanoleafPluginOption {
   effect    NanoleafEffect @relation(fields: [effectId], references: [id])
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
-}
-
-model NanoleafPropertiesOnEffect {
-  propertiesId String
-  properties   NanoleafProperties @relation(fields: [propertiesId], references: [id])
-  effectId     String
-  effect       NanoleafEffect     @relation(fields: [effectId], references: [id])
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-
-  @@id([propertiesId, effectId])
 }
 
 //* Lifx
@@ -133,7 +122,7 @@ model HueProperties {
 model Palette {
   id             String             @id @default(uuid())
   name           String             @unique
-  colors         PalettesOnColors[]
+  colors         Color[]
   nanoleafEffect NanoleafEffect?
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
@@ -144,16 +133,5 @@ model Color {
   hue        Int
   saturation Int
   brightness Int
-  palettes   PalettesOnColors[]
-}
-
-model PalettesOnColors {
-  paletteId String
-  palette   Palette  @relation(fields: [paletteId], references: [id])
-  colorId   String
-  color     Color    @relation(fields: [colorId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@id([paletteId, colorId])
+  palettes   Palette[]
 }
