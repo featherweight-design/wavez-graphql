@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { NanoleafAllEffectsResponse } from 'types';
+import { NanoleafAllEffectsResponse, NanoLeafAnimationResponse } from 'types';
 
 import { constants } from '../definitions';
 
@@ -8,7 +8,7 @@ const { endpoints } = constants;
 const getAllEffectsDetails = async (
   ipAddress: string,
   authToken: string
-): Promise<NanoleafAllEffectsResponse> => {
+): Promise<NanoLeafAnimationResponse[]> => {
   const response = await fetch(endpoints.get.effects(ipAddress, authToken), {
     method: 'PUT',
     body: JSON.stringify({
@@ -20,7 +20,7 @@ const getAllEffectsDetails = async (
 
   const properties = (await response.json()) as NanoleafAllEffectsResponse;
 
-  return properties;
+  return properties.animations;
 };
 
 export default getAllEffectsDetails;
