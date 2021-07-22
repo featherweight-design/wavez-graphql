@@ -1,3 +1,4 @@
+import { NanoleafEffect } from '@prisma/client';
 import {
   Arg,
   Ctx,
@@ -8,27 +9,30 @@ import {
 } from 'type-graphql';
 
 import { Context } from 'types';
+import { User } from 'user';
 import NanoleafAuthToken from './NanoleafAuthToken';
-import { NanoleafUser } from 'nanoleaf/nanoleafUser';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
   authenticateWithNanoleafDevice,
   doesDeviceExistsByIpAddress,
+  getAllEffectsDetails,
   getAllPanelProperties,
 } from '../utils';
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
-  @FieldResolver(() => NanoleafUser)
-  async nanoleafUser(
-    @Root() NanoleafAuthToken: NanoleafAuthToken,
+  @FieldResolver(() => User)
+  async user(
+    @Root() nanoleafAuthToken: NanoleafAuthToken,
     @Ctx() { prisma }: Context
-  ): Promise<NanoleafUser | null> {
-    const nanoleafUser = await prisma.nanoleafAuthToken
-      .findUnique({ where: { id: NanoleafAuthToken.id } })
-      .nanoleafUser();
+  ): Promise<User | null> {
+    const user = await prisma.nanoleafAuthToken
+      .findUnique({
+        where: { id: nanoleafAuthToken.id },
+      })
+      .user();
 
-    return nanoleafUser;
+    return user;
   }
 
   @Mutation(() => String)
@@ -44,19 +48,19 @@ class NanoleafAuthTokenResolver {
       const token = await authenticateWithNanoleafDevice(input.ip);
 
       //* Get Panel properties with new auth token
-      const { firmwareVersion, name, model, serialNo, effects } =
+      const { firmwareVersion, name, model, serialNo } =
         await getAllPanelProperties(input.ip, token);
 
-      //* Nanoleaf user is created here if it doesn't already exist
-      const nanoleafUser = await prisma.nanoleafUser.upsert({
-        where: {
-          userId,
-        },
-        update: {},
-        create: {
-          userId,
-        },
-      });
+      // TODO Palette creation
+      /**
+       * * 1. Get all device effects details
+       * * 2. Extract palettes/color and save to DB
+       * * 3. Create effects and connect to palette
+       */
+
+      //* Get all effect details for new device
+      const effectsDetails = await getAllEffectsDetails(input.ip, token);
+      console.log(effectsDetails);
 
       /**
        * * Currently unable to update array with upsert through Prisma,
@@ -65,45 +69,82 @@ class NanoleafAuthTokenResolver {
       await prisma.nanoleafAuthToken.create({
         data: {
           token,
-          nanoleafUserId: nanoleafUser.id,
+          userId,
         },
       });
 
       /**
-       * * 1. Create device with userId and connect authToke
+       * * 1. Create device with userId and connect authToken
        * * 2a. Create nanoleafProperties (panel)
        * * 2b. Create effects
-       * * 2c. Connect authToken to panel
+       * * 2c. Connect authToken to properties
        */
-      await prisma.device.create({
-        data: {
-          ...input,
-          type: 'NANOLEAF',
-          userId,
-          nanoleafAuthToken: {
-            connect: {
-              token,
+      const savedEffects = await prisma.device
+        .create({
+          data: {
+            ...input,
+            type: 'NANOLEAF',
+            userId,
+            nanoleafAuthToken: {
+              connect: {
+                token,
+              },
             },
-          },
-          nanoleafProperties: {
-            create: {
-              firmwareVersion,
-              name,
-              model,
-              serialNo,
-              effects: {
-                create: {
-                  ...effects,
+            nanoleafProperties: {
+              create: {
+                firmwareVersion,
+                name,
+                model,
+                serialNo,
+                effects: {
+                  create: effectsDetails,
+                },
+                authToken: {
+                  connect: {
+                    token,
+                  },
                 },
               },
-              authToken: {
+            },
+          },
+          select: {
+            nanoleafProperties: {
+              select: {
+                effects: {
+                  select: {
+                    id: true,
+                    animName: true,
+                    pluginUuid: true,
+                  },
+                },
+              },
+            },
+          },
+        })
+        .nanoleafProperties()
+        .effects();
+
+      //* Create all pulled palettes and connect to matching effects
+      savedEffects.forEach(async (effect: NanoleafEffect) => {
+        const matchingEffect = effectsDetails.find(
+          detail => detail.pluginUuid === effect.pluginUuid
+        );
+
+        if (matchingEffect) {
+          await prisma.palette.create({
+            data: {
+              name: effect.animName,
+              colors: {
+                create: matchingEffect.palette,
+              },
+              nanoleafEffect: {
                 connect: {
-                  token,
+                  id: effect.id,
                 },
               },
             },
-          },
-        },
+          });
+        }
       });
 
       return token;
