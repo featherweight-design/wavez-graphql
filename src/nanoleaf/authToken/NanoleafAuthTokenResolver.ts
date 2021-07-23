@@ -50,44 +50,35 @@ class NanoleafAuthTokenResolver {
       const { firmwareVersion, name, model, serialNo } =
         await getAllPanelProperties(input.ip, token);
 
-      // TODO Palette creation
-      /**
-       * * 1. Get all device effects details
-       * * 2. Extract palettes/color and save to DB
-       * * 3. Create effects and connect to palette
-       */
-
       //* Get all effect details for new device
       const effectsDetails = await getAllEffectsDetails(input.ip, token);
 
-      console.log(effectsDetails);
+      const connectPalettes = await Promise.all(
+        effectsDetails.filter(async ({ animName }) => {
+          const doesPaletteExist = await prisma.palette.findUnique({
+            where: { name: animName },
+          });
+          if (doesPaletteExist) {
+            return true;
+          }
 
-      const palettes = effectsDetails.map(({ animName, palette }) => ({
-        name: animName,
-        colors: palette.map(({ hue, saturation, brightness }) => ({
-          hue,
-          saturation,
-          brightness,
-        })),
-        // nanoleafPropertiesId: nanoleafProperties.id,
-      }));
+          return false;
+        })
+      );
 
-      /**
-       * * Currently unable to update array with upsert through Prisma,
-       * * so we create a new authToken here and add nanoleadUserId
-       */
-      await prisma.nanoleafAuthToken.create({
-        data: {
-          token,
-          userId,
-        },
-      });
+      const createPalettes = effectsDetails.filter(({ animName }) =>
+        connectPalettes.find(palette => palette.animName === animName)
+          ? true
+          : false
+      );
+
+      console.log(connectPalettes, createPalettes);
 
       /**
        * * 1. Create device with userId and connect authToken
        * * 2a. Create nanoleafProperties (panel)
-       * * 2b. Create effects
-       * * 2c. Connect authToken to properties
+       * * 2b. Create many palettes to nanoleafProperties
+       * * 2c. Create authToken
        */
       await prisma.device.create({
         data: {
@@ -102,11 +93,12 @@ class NanoleafAuthTokenResolver {
           nanoleafProperties: {
             create: {
               palettes: {
-                create: palettes.map(({ name, colors }) => ({
-                  name,
-                  colors: {
-                    create: colors,
-                  },
+                connect: connectPalettes.map(({ animName }) => ({
+                  name: animName,
+                })),
+                create: createPalettes.map(({ animName, palette }) => ({
+                  name: animName,
+                  colors: JSON.stringify(palette),
                 })),
               },
               firmwareVersion,
@@ -114,8 +106,9 @@ class NanoleafAuthTokenResolver {
               model,
               serialNo,
               authToken: {
-                connect: {
+                create: {
                   token,
+                  userId,
                 },
               },
             },
