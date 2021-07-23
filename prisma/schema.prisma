@@ -95,19 +95,10 @@ model HueProperties {
 
 //* Color Palette
 model Palette {
-  id                   String             @id @default(uuid())
-  name                 String             @unique
-  colors               Color[]
-  nanoleafPropertiesId String
-  nanoleafProperties   NanoleafProperties @relation(fields: [nanoleafPropertiesId], references: [id])
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-}
-
-model Color {
-  id         String    @id @default(uuid())
-  hue        Int
-  saturation Int
-  brightness Int
-  palettes   Palette[]
+  id                 String               @id @default(uuid())
+  name               String               @unique
+  colors             String
+  nanoleafProperties NanoleafProperties[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 }
