@@ -53,26 +53,35 @@ class NanoleafAuthTokenResolver {
       //* Get all effect details for new device
       const effectsDetails = await getAllEffectsDetails(input.ip, token);
 
-      const connectPalettes = await Promise.all(
-        effectsDetails.filter(async ({ animName }) => {
+      const paletteCheck = await Promise.all(
+        effectsDetails.map(async ({ animName }) => {
           const doesPaletteExist = await prisma.palette.findUnique({
             where: { name: animName },
           });
-          if (doesPaletteExist) {
-            return true;
+          if (doesPaletteExist === null) {
+            return false;
           }
 
-          return false;
+          return true;
         })
+      );
+
+      const connectPalettes = effectsDetails.filter(
+        (_element, index) => paletteCheck[index]
       );
 
       const createPalettes = effectsDetails.filter(({ animName }) =>
         connectPalettes.find(palette => palette.animName === animName)
-          ? true
-          : false
+          ? false
+          : true
       );
 
-      console.log(connectPalettes, createPalettes);
+      await prisma.nanoleafAuthToken.create({
+        data: {
+          token,
+          userId,
+        },
+      });
 
       /**
        * * 1. Create device with userId and connect authToken
@@ -106,9 +115,8 @@ class NanoleafAuthTokenResolver {
               model,
               serialNo,
               authToken: {
-                create: {
+                connect: {
                   token,
-                  userId,
                 },
               },
             },
