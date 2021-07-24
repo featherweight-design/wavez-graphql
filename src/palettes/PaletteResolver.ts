@@ -13,6 +13,7 @@ import { Context } from 'types';
 import { User } from 'user';
 import Palette from './Palette';
 import { getPaletteSyncConfig } from './utils';
+import { updateEffectName } from 'nanoleaf/utils';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -138,6 +139,81 @@ class PaletteResolver {
         .palettes();
 
       return createdPalettes;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Mutation(() => Palette)
+  async updatePaletteNameById(
+    @Arg('id') id: string,
+    @Arg('newName') newName: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette> {
+    try {
+      //* Get all devices by Palette id
+      const palette = await prisma.palette.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          name: true,
+          devices: {
+            select: {
+              id: true,
+              ip: true,
+              nanoleafAuthToken: {
+                select: {
+                  token: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!palette) {
+        throw new Error(`Palette not found by id: ${id}`);
+      }
+
+      if (!palette.devices.length) {
+        throw new Error(
+          `Palette by id ${id} does not have any associated devices`
+        );
+      }
+
+      //* Update palette in Nanoleaf first
+      await Promise.all(
+        palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
+          if (!nanoleafAuthToken) {
+            throw new Error(
+              `Device by id ${id} does not have an associate auth token`
+            );
+          }
+
+          await updateEffectName({
+            ipAddress: ip,
+            authToken: nanoleafAuthToken?.token,
+            existingName: palette.name,
+            newName,
+          });
+        })
+      );
+
+      //* On success, update palette in DB
+      //* Return updated Palette
+      const updatedPalette = await prisma.palette.update({
+        where: {
+          id,
+        },
+        data: {
+          name: newName,
+        },
+      });
+
+      return updatedPalette;
     } catch (error) {
       console.error(error);
 
