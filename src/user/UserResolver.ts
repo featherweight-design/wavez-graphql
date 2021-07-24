@@ -1,11 +1,53 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from 'type-graphql';
 
+import { Device } from 'device';
 import { Context } from 'types';
 import User from './User';
 import { CreateUserInput } from './UserInputs';
+import { Palette } from 'palettes';
 
 @Resolver(User)
 class UserResolver {
+  @FieldResolver(() => [Device])
+  async devices(
+    @Root() user: User,
+    @Ctx() { prisma }: Context
+  ): Promise<Device[]> {
+    const devices = await prisma.user
+      .findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+      .devices();
+
+    return devices;
+  }
+
+  @FieldResolver(() => [Palette])
+  async palettes(
+    @Root() user: User,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette[]> {
+    const palettes = await prisma.user
+      .findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+      .palettes();
+
+    return palettes;
+  }
+
   @Query(() => [User])
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
     const users = await prisma.user.findMany();
