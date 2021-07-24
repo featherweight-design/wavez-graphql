@@ -37,6 +37,20 @@ class PaletteResolver {
     return user;
   }
 
+  @Query(() => [Palette])
+  async getAllPalettesByUserId(
+    @Arg('userId') userId: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette[]> {
+    const palettes = await prisma.palette.findMany({
+      where: {
+        userId,
+      },
+    });
+
+    return palettes;
+  }
+
   @Query(() => Palette, { nullable: true })
   async getPaletteById(
     @Arg('id') id: string,
