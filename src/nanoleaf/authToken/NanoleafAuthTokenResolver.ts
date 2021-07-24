@@ -8,7 +8,6 @@ import {
 } from 'type-graphql';
 
 import { Context } from 'types';
-import { User } from 'user';
 import NanoleafAuthToken from './NanoleafAuthToken';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
@@ -17,25 +16,26 @@ import {
   getAllEffectsDetails,
   getAllPanelProperties,
 } from '../utils';
+import { Device } from 'device';
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
-  @FieldResolver(() => User)
-  async user(
+  @FieldResolver(() => Device)
+  async device(
     @Root() nanoleafAuthToken: NanoleafAuthToken,
     @Ctx() { prisma }: Context
-  ): Promise<User | null> {
-    const user = await prisma.nanoleafAuthToken
+  ): Promise<Device | null> {
+    const device = await prisma.nanoleafAuthToken
       .findUnique({
         where: { id: nanoleafAuthToken.id },
       })
-      .user();
+      .device();
 
-    return user;
+    return device;
   }
 
   @Mutation(() => String)
-  async authenticateNewNanoleafUser(
+  async authenticateWithDeviceByUserId(
     @Arg('input') input: AuthenticateNewUserInput,
     @Arg('userId') userId: string,
     @Ctx() { prisma }: Context
@@ -76,13 +76,6 @@ class NanoleafAuthTokenResolver {
           : true
       );
 
-      await prisma.nanoleafAuthToken.create({
-        data: {
-          token,
-          userId,
-        },
-      });
-
       /**
        * * 1. Create device with userId and connect authToken
        * * 2a. Create nanoleafProperties (panel)
@@ -93,32 +86,36 @@ class NanoleafAuthTokenResolver {
         data: {
           ...input,
           type: 'NANOLEAF',
-          userId,
-          nanoleafAuthToken: {
+          user: {
             connect: {
+              id: userId,
+            },
+          },
+          nanoleafAuthToken: {
+            create: {
               token,
             },
           },
+          palettes: {
+            connect: connectPalettes.map(({ animName }) => ({
+              name: animName,
+            })),
+            create: createPalettes.map(({ animName, palette }) => ({
+              name: animName,
+              colors: JSON.stringify(palette),
+              user: {
+                connect: {
+                  id: userId,
+                },
+              },
+            })),
+          },
           nanoleafProperties: {
             create: {
-              palettes: {
-                connect: connectPalettes.map(({ animName }) => ({
-                  name: animName,
-                })),
-                create: createPalettes.map(({ animName, palette }) => ({
-                  name: animName,
-                  colors: JSON.stringify(palette),
-                })),
-              },
               firmwareVersion,
               name,
               model,
               serialNo,
-              authToken: {
-                connect: {
-                  token,
-                },
-              },
             },
           },
         },
