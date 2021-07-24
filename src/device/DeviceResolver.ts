@@ -235,6 +235,46 @@ class DeviceResolver {
     }
   }
 
+  @Mutation(() => Boolean)
+  async updateDevicePowerByType(
+    @Arg('type') type: DeviceType,
+    @Arg('isOn') isOn: boolean,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      const devices = await prisma.device.findMany({
+        where: { type },
+        include: { nanoleafAuthToken: true },
+      });
+
+      if (!devices.length) {
+        throw new UserInputError(`Devices by type ${type} do not exist`);
+      }
+
+      devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
+        if (!nanoleafAuthToken) {
+          throw new Error(
+            `Device by id ${id} does not have an associated auth token`
+          );
+        }
+
+        const stateInput = {
+          on: {
+            value: isOn.toString(),
+          },
+        };
+
+        await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
+      });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
   @Mutation(() => Device, { nullable: true })
   async updateDeviceNameById(
     @Arg('id') id: string,
