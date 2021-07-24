@@ -22,7 +22,7 @@ export interface NanoleafAuthenticationResponse {
   auth_token: string;
 }
 
-export interface NanoleafPanelProps {
+export interface NanoleafPropertiesProps {
   firmwareVersion: string;
   name: string;
   model: string;
