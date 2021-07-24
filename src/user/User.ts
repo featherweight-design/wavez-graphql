@@ -10,12 +10,6 @@ class User {
 
   @Field(() => String, { nullable: true })
   name: string | null;
-
-  // @Field(() => NanoleafUser, { nullable: true })
-  // nanoleafUser?: NanoleafUser;
-
-  // @Field(() => [Device], { nullable: true })
-  // devices: Device[]
 }
 
 export default User;
