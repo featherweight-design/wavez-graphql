@@ -1,9 +1,15 @@
 import fetch from 'node-fetch';
-import { NanoleafAllEffectsResponse, NanoLeafAnimationResponse } from 'types';
 
+import { NanoleafAllEffectsResponse, NanoLeafAnimationResponse } from 'types';
 import { constants } from '../definitions';
 
 const { endpoints } = constants;
+
+/** Example body request
+ * {
+ *  "command": "requestAll",
+ * }
+ */
 
 const getAllEffectsDetails = async (
   ipAddress: string,
