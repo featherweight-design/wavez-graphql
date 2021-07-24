@@ -126,7 +126,9 @@ class PaletteResolver {
       });
 
       if (!devices.length) {
-        throw new Error(`User by id ${userId} has no associated devices`);
+        throw new UserInputError(
+          `User by id ${userId} has no associated devices`
+        );
       }
 
       //* Make update calls to Nanoleaf devices
@@ -146,6 +148,69 @@ class PaletteResolver {
             palette.name
           );
         })
+      );
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async setPaletteToDeviceById(
+    @Arg('deviceId') deviceId: string,
+    @Arg('paletteId') paletteId: string,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      //* Grab palette
+      const palette = await prisma.palette.findUnique({
+        where: {
+          id: paletteId,
+        },
+        select: {
+          name: true,
+        },
+      });
+
+      if (!palette) {
+        throw new UserInputError(`No palette exists by id ${paletteId}`);
+      }
+
+      //* Grab all devices
+      const device = await prisma.device.findUnique({
+        where: {
+          id: deviceId,
+        },
+        select: {
+          id: true,
+          ip: true,
+          nanoleafAuthToken: {
+            select: {
+              token: true,
+            },
+          },
+        },
+      });
+
+      if (!device) {
+        throw new UserInputError(`Device by id ${deviceId} does not exist`);
+      }
+
+      //* Handle errors for auth token
+      if (!device.nanoleafAuthToken) {
+        throw new Error(
+          `Device by id ${device.id} does not have an associated auth token`
+        );
+      }
+
+      //* Update through Nanoleaf API
+      await updateCurrentEffect(
+        device.ip,
+        device.nanoleafAuthToken.token,
+        palette.name
       );
 
       return true;
