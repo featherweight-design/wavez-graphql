@@ -15,6 +15,8 @@ import { Context, DeviceMacSubstringByType } from 'types';
 import { User } from 'user';
 import { Device, WifiDevice } from './Device';
 import { NanoleafAuthToken, NanoleafProperties } from 'nanoleaf';
+import { UserInputError } from 'apollo-server';
+import { updateCurrentState } from 'nanoleaf/utils';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
@@ -131,6 +133,64 @@ class DeviceResolver {
     return device;
   }
 
+  @Mutation(() => String)
+  async deleteDeviceById(
+    @Arg('id') id: string,
+    @Ctx() { prisma }: Context
+  ): Promise<string> {
+    try {
+      await prisma.device.delete({
+        where: {
+          id,
+        },
+      });
+
+      return id;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async updateAllDevicePowerByUserId(
+    @Arg('userId') userId: string,
+    @Arg('isOn') isOn: boolean,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      const devices = await prisma.device.findMany({
+        where: { userId: userId, type: 'NANOLEAF' },
+        include: { nanoleafAuthToken: true },
+      });
+
+      if (!devices.length) {
+        throw new UserInputError(
+          `User by id ${userId} has no associated devices`
+        );
+      }
+
+      devices.forEach(async ({ ip, nanoleafAuthToken }) => {
+        if (nanoleafAuthToken) {
+          const stateInput = {
+            on: {
+              value: isOn.toString(),
+            },
+          };
+
+          await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
+        }
+      });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
   @Mutation(() => Device, { nullable: true })
   async updateDeviceNameById(
     @Arg('id') id: string,
@@ -147,26 +207,6 @@ class DeviceResolver {
     });
 
     return device;
-  }
-
-  @Mutation(() => Boolean)
-  async deleteDeviceById(
-    @Arg('id') id: string,
-    @Ctx() { prisma }: Context
-  ): Promise<boolean> {
-    try {
-      await prisma.device.delete({
-        where: {
-          id,
-        },
-      });
-
-      return true;
-    } catch (error) {
-      console.error(error);
-
-      return false;
-    }
   }
 }
 
