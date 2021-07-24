@@ -14,6 +14,7 @@ import { Context, DeviceMacSubstringByType } from 'types';
 import { Device, WifiDevice } from './Device';
 import { User } from 'user';
 import { DeviceType } from '@prisma/client';
+import { Palette } from 'palettes';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
@@ -30,6 +31,22 @@ class DeviceResolver {
       .user();
 
     return user;
+  }
+
+  @FieldResolver(() => [Palette])
+  async palettes(
+    @Root() device: Device,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette[]> {
+    const palettes = await prisma.device
+      .findUnique({
+        where: {
+          id: device.id,
+        },
+      })
+      .palettes();
+
+    return palettes;
   }
 
   @Query(() => [WifiDevice])
