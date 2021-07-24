@@ -4,19 +4,17 @@ import { constants } from 'nanoleaf/definitions';
 
 const { endpoints } = constants;
 
-interface UpdateCurrentEffectRequestBody {
-  select: string;
-}
-
 const updateCurrentEffect = async (
   ipAddress: string,
   authToken: string,
-  body: UpdateCurrentEffectRequestBody
+  effectName: string
 ): Promise<void> => {
   try {
     await fetch(endpoints.update.effect(ipAddress, authToken), {
       method: 'PUT',
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        select: effectName,
+      }),
     });
   } catch (error) {
     throw new Error(error);
