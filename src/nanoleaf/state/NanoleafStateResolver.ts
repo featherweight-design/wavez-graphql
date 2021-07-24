@@ -14,16 +14,22 @@ class NanoleafStateResolver {
     @Arg('stateInput') stateInput: NanoleafStateInput,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
-    const deviceProperties = await prisma.device.findUnique({
+    const device = await prisma.device.findUnique({
       where: { id: deviceId },
       include: { nanoleafAuthToken: true },
     });
 
-    if (!deviceProperties || !deviceProperties.nanoleafAuthToken) {
-      throw new UserInputError('Bad');
+    if (!device) {
+      throw new UserInputError(`Device by id ${deviceId} does not exist`);
     }
 
-    const { ip, nanoleafAuthToken } = deviceProperties;
+    if (!device.nanoleafAuthToken) {
+      throw new Error(
+        `Device by id ${device.id} does not have an associated auth token`
+      );
+    }
+
+    const { ip, nanoleafAuthToken } = device;
 
     await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
 
@@ -43,7 +49,9 @@ class NanoleafStateResolver {
     });
 
     if (!devices.length) {
-      throw new UserInputError('Bad');
+      throw new UserInputError(
+        `User by id ${userId} has no associated devices`
+      );
     }
 
     devices.forEach(async ({ ip, nanoleafAuthToken }) => {
