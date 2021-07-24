@@ -40,23 +40,21 @@ const getPaletteSyncConfig = async ({
   );
 
   const paletteConfig = {
-    palettes: {
-      connect: connectPalettes.map(({ animName }) => ({
-        name: animName,
-      })),
-      create: createPalettes.map(({ animName, palette }) => ({
-        name: animName,
-        colors: JSON.stringify(palette),
-        user: {
-          connect: {
-            id: userId,
-          },
+    connect: connectPalettes.map(({ animName }) => ({
+      name: animName,
+    })),
+    create: createPalettes.map(({ animName, palette }) => ({
+      name: animName,
+      colors: JSON.stringify(palette),
+      user: {
+        connect: {
+          id: userId,
         },
-      })),
-    },
+      },
+    })),
   };
 
-  return paletteConfig as Prisma.PaletteCreateNestedManyWithoutDevicesInput;
+  return paletteConfig;
 };
 
 export default getPaletteSyncConfig;

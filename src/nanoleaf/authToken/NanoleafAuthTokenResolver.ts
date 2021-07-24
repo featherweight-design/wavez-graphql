@@ -54,7 +54,7 @@ class NanoleafAuthTokenResolver {
 
       //* Get all effect details for new device
       const paletteConfig = shouldSyncPalettes
-        ? getPaletteSyncConfig({
+        ? await getPaletteSyncConfig({
             ip: input.ip,
             prisma,
             token,
@@ -82,7 +82,7 @@ class NanoleafAuthTokenResolver {
               token,
             },
           },
-          ...paletteConfig,
+          palettes: paletteConfig,
           nanoleafProperties: {
             create: {
               firmwareVersion,
