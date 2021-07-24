@@ -12,6 +12,7 @@ import { Device } from 'device';
 import { Context } from 'types';
 import { User } from 'user';
 import Palette from './Palette';
+import { getPaletteSyncConfig } from './utils';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -83,6 +84,65 @@ class PaletteResolver {
     });
 
     return id;
+  }
+
+  @Mutation(() => [Palette])
+  async syncPalettesByDeviceId(
+    @Arg('deviceId') deviceId: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette[]> {
+    try {
+      const device = await prisma.device.findUnique({
+        where: {
+          id: deviceId,
+        },
+        include: {
+          nanoleafAuthToken: true,
+        },
+      });
+
+      if (!device) {
+        throw new Error(`No Device found by id: ${deviceId}`);
+      }
+
+      if (!device.nanoleafAuthToken) {
+        throw new Error(
+          `Device by id ${deviceId} does not have an associated auth token`
+        );
+      }
+
+      const {
+        ip,
+        userId,
+        nanoleafAuthToken: { token },
+      } = device;
+      const paletteConfig = await getPaletteSyncConfig({
+        ip,
+        prisma,
+        token,
+        userId,
+      });
+
+      const createdPalettes = prisma.device
+        .update({
+          where: {
+            id: deviceId,
+          },
+          data: {
+            palettes: paletteConfig,
+          },
+          select: {
+            palettes: true,
+          },
+        })
+        .palettes();
+
+      return createdPalettes;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 }
 
