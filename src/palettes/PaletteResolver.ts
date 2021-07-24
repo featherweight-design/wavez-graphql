@@ -1,5 +1,5 @@
 import { NanoleafProperties } from 'nanoleaf';
-import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
+import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
 import { Context } from 'types';
 import Palette from './Palette';
 
@@ -17,6 +17,20 @@ class PaletteResolver {
       .nanoleafProperties();
 
     return nanoleafProperties;
+  }
+
+  @Query(() => Palette, { nullable: true })
+  async getPaletteById(
+    @Arg('id') id: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette | null> {
+    const palette = await prisma.palette.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return palette;
   }
 }
 
