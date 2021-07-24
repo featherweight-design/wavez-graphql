@@ -2,6 +2,7 @@ import authenticateWithNanoleafDevice from './authenticateWithNanoleafDevice';
 import doesDeviceExistsByIpAddress from './doesDeviceExistsByIpAddress';
 import getAllEffectsDetails from './getAllEffectsDetails';
 import getAllPanelProperties from './getAllPanelProperties';
+import getEffectDetailsByName from './getEffectDetailsByName';
 import getEffectsList from './getEffectsList';
 import updateEffectName from './updateEffectName';
 import updateCurrentEffect from './updateCurrentEffect';
@@ -12,6 +13,7 @@ export {
   doesDeviceExistsByIpAddress,
   getAllEffectsDetails,
   getAllPanelProperties,
+  getEffectDetailsByName,
   getEffectsList,
   updateEffectName,
   updateCurrentEffect,
