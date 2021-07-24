@@ -1,22 +1,40 @@
-import { NanoleafProperties } from 'nanoleaf';
 import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
+
+import { Device } from 'device';
 import { Context } from 'types';
+import { User } from 'user';
 import Palette from './Palette';
 
 @Resolver(Palette)
 class PaletteResolver {
-  @FieldResolver(() => [NanoleafProperties])
-  async nanoleafProperties(
+  @FieldResolver(() => [Device])
+  async devices(
     @Root() palette: Palette,
     @Ctx() { prisma }: Context
-  ): Promise<NanoleafProperties[]> {
-    const nanoleafProperties = await prisma.palette
+  ): Promise<Device[]> {
+    const devices = await prisma.palette
       .findUnique({
         where: { id: palette.id },
       })
-      .nanoleafProperties();
+      .devices();
 
-    return nanoleafProperties;
+    return devices;
+  }
+
+  @FieldResolver(() => User)
+  async user(
+    @Root() palette: Palette,
+    @Ctx() { prisma }: Context
+  ): Promise<User | null> {
+    const user = await prisma.palette
+      .findUnique({
+        where: {
+          id: palette.id,
+        },
+      })
+      .user();
+
+    return user;
   }
 
   @Query(() => Palette, { nullable: true })
