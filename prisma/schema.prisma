@@ -37,7 +37,7 @@ model Device {
   userId               String
   user                 User                @relation(fields: [userId], references: [id])
   palettes             Palette[]
-  nanoleafAuthTokenId  String              @unique
+  nanoleafAuthTokenId  String?             @unique
   nanoleafAuthToken    NanoleafAuthToken?  @relation
   nanoleafPropertiesId String?             @unique
   nanoleafProperties   NanoleafProperties?
