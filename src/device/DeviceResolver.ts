@@ -15,22 +15,43 @@ import { Device, WifiDevice } from './Device';
 import { User } from 'user';
 import { DeviceType } from '@prisma/client';
 import { Palette } from 'palettes';
+import { NanoleafAuthToken, NanoleafProperties } from 'nanoleaf';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
 
 @Resolver(Device)
 class DeviceResolver {
-  @FieldResolver(() => User)
-  async user(
+  @FieldResolver(() => NanoleafAuthToken)
+  async nanoleafAuthToken(
     @Root() device: Device,
     @Ctx() { prisma }: Context
-  ): Promise<User | null> {
-    const user = await prisma.device
-      .findUnique({ where: { id: device.id } })
-      .user();
+  ): Promise<NanoleafAuthToken | null> {
+    const nanoleafAuthToken = await prisma.device
+      .findUnique({
+        where: {
+          id: device.id,
+        },
+      })
+      .nanoleafAuthToken();
 
-    return user;
+    return nanoleafAuthToken;
+  }
+
+  @FieldResolver(() => NanoleafProperties)
+  async nanoleafProperties(
+    @Root() device: Device,
+    @Ctx() { prisma }: Context
+  ): Promise<NanoleafProperties | null> {
+    const nanoleafProperties = await prisma.device
+      .findUnique({
+        where: {
+          id: device.id,
+        },
+      })
+      .nanoleafProperties();
+
+    return nanoleafProperties;
   }
 
   @FieldResolver(() => [Palette])
@@ -47,6 +68,18 @@ class DeviceResolver {
       .palettes();
 
     return palettes;
+  }
+
+  @FieldResolver(() => User)
+  async user(
+    @Root() device: Device,
+    @Ctx() { prisma }: Context
+  ): Promise<User | null> {
+    const user = await prisma.device
+      .findUnique({ where: { id: device.id } })
+      .user();
+
+    return user;
   }
 
   @Query(() => [WifiDevice])
