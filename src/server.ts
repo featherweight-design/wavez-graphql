@@ -10,6 +10,7 @@ import {
   NanoleafPropertiesResolver,
   NanoleafStateResolver,
 } from 'nanoleaf';
+import { PaletteResolver } from 'palettes';
 import { UserResolver } from 'user';
 
 const PORT = 4000;
@@ -22,6 +23,7 @@ const schema = buildSchemaSync({
     NanoleafAuthTokenResolver,
     NanoleafPropertiesResolver,
     NanoleafStateResolver,
+    PaletteResolver,
     UserResolver,
   ],
 });
