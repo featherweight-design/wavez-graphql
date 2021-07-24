@@ -8,12 +8,12 @@ import {
 } from 'type-graphql';
 
 import { Context } from 'types';
+import { getPaletteSyncConfig } from 'palettes/utils';
 import NanoleafAuthToken from './NanoleafAuthToken';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
   authenticateWithNanoleafDevice,
   doesDeviceExistsByIpAddress,
-  getAllEffectsDetails,
   getAllPanelProperties,
 } from '../utils';
 import { Device } from 'device';
@@ -36,9 +36,11 @@ class NanoleafAuthTokenResolver {
 
   @Mutation(() => String)
   async authenticateWithDeviceByUserId(
+    @Ctx() { prisma }: Context,
     @Arg('input') input: AuthenticateNewUserInput,
     @Arg('userId') userId: string,
-    @Ctx() { prisma }: Context
+    @Arg('shouldSyncPalettes', { nullable: true, defaultValue: false })
+    shouldSyncPalettes?: boolean
   ): Promise<string> {
     try {
       //* Check to see if a device with the same IP Address already exists
@@ -51,30 +53,14 @@ class NanoleafAuthTokenResolver {
         await getAllPanelProperties(input.ip, token);
 
       //* Get all effect details for new device
-      const effectsDetails = await getAllEffectsDetails(input.ip, token);
-
-      const paletteCheck = await Promise.all(
-        effectsDetails.map(async ({ animName }) => {
-          const doesPaletteExist = await prisma.palette.findUnique({
-            where: { name: animName },
-          });
-          if (doesPaletteExist === null) {
-            return false;
-          }
-
-          return true;
-        })
-      );
-
-      const connectPalettes = effectsDetails.filter(
-        (_element, index) => paletteCheck[index]
-      );
-
-      const createPalettes = effectsDetails.filter(({ animName }) =>
-        connectPalettes.find(palette => palette.animName === animName)
-          ? false
-          : true
-      );
+      const paletteConfig = shouldSyncPalettes
+        ? getPaletteSyncConfig({
+            ip: input.ip,
+            prisma,
+            token,
+            userId,
+          })
+        : {};
 
       /**
        * * 1. Create device with userId and connect authToken
@@ -96,20 +82,7 @@ class NanoleafAuthTokenResolver {
               token,
             },
           },
-          palettes: {
-            connect: connectPalettes.map(({ animName }) => ({
-              name: animName,
-            })),
-            create: createPalettes.map(({ animName, palette }) => ({
-              name: animName,
-              colors: JSON.stringify(palette),
-              user: {
-                connect: {
-                  id: userId,
-                },
-              },
-            })),
-          },
+          ...paletteConfig,
           nanoleafProperties: {
             create: {
               firmwareVersion,
