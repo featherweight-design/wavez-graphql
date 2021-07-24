@@ -1,10 +1,27 @@
-import { Arg, Ctx, Query, Resolver } from 'type-graphql';
+import { Device } from 'device';
+import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
 import { Context } from 'types';
 
 import NanoleafProperties from './NanoleafProperties';
 
 @Resolver(NanoleafProperties)
 class NanoleafPropertiesResolver {
+  @FieldResolver(() => Device)
+  async device(
+    @Root() nanoleafProperties: NanoleafProperties,
+    @Ctx() { prisma }: Context
+  ): Promise<Device | null> {
+    const device = await prisma.nanoleafProperties
+      .findUnique({
+        where: {
+          id: nanoleafProperties.id,
+        },
+      })
+      .device();
+
+    return device;
+  }
+
   @Query(() => [NanoleafProperties])
   async getAllNanoleafPropertiess(
     @Ctx() { prisma }: Context
