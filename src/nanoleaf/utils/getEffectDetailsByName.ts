@@ -17,19 +17,25 @@ const getEffectDetailsByName = async (
   ipAddress: string,
   paletteName: string
 ): Promise<NanoLeafAnimationResponse> => {
-  const response = await fetch(endpoints.get.effects(ipAddress, authToken), {
-    method: 'PUT',
-    body: JSON.stringify({
-      write: {
-        command: 'request',
-        animName: paletteName,
-      },
-    }),
-  });
+  try {
+    const response = await fetch(endpoints.get.effects(ipAddress, authToken), {
+      method: 'PUT',
+      body: JSON.stringify({
+        write: {
+          command: 'request',
+          animName: paletteName,
+        },
+      }),
+    });
 
-  const properties = (await response.json()) as NanoLeafAnimationResponse;
+    const properties = (await response.json()) as NanoLeafAnimationResponse;
 
-  return properties;
+    return properties;
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+  }
 };
 
 export default getEffectDetailsByName;
