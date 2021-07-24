@@ -1,4 +1,12 @@
-import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+} from 'type-graphql';
 
 import { Device } from 'device';
 import { Context } from 'types';
@@ -63,6 +71,18 @@ class PaletteResolver {
     });
 
     return palette;
+  }
+
+  @Mutation(() => String)
+  async deletePaletteById(
+    @Arg('id') id: string,
+    @Ctx() { prisma }: Context
+  ): Promise<string> {
+    await prisma.palette.delete({
+      where: { id },
+    });
+
+    return id;
   }
 }
 
