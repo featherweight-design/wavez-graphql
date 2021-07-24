@@ -12,13 +12,14 @@ generator client {
 
 //* User
 model User {
-  id         String              @id @default(uuid())
-  email      String              @unique
-  name       String?
-  devices    Device[]
-  authTokens NanoleafAuthToken[]
-  createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @updatedAt
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  devices   Device[]
+  palettes  Palette[]
+  lastLogin DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 //* Device
@@ -36,8 +37,9 @@ model Device {
   type                 DeviceType
   userId               String
   user                 User                @relation(fields: [userId], references: [id])
-  nanoleafAuthTokenId  String?             @unique
-  nanoleafAuthToken    NanoleafAuthToken?
+  palettes             Palette[]
+  nanoleafAuthTokenId  String              @unique
+  nanoleafAuthToken    NanoleafAuthToken?  @relation
   nanoleafPropertiesId String?             @unique
   nanoleafProperties   NanoleafProperties?
   lifxPropertiesId     String?             @unique
@@ -49,30 +51,24 @@ model Device {
 }
 
 model NanoleafAuthToken {
-  id        String              @id @default(uuid())
-  token     String              @unique
-  deviceId  String?             @unique
-  device    Device?             @relation(fields: [deviceId], references: [id])
-  panelId   String?             @unique
-  panel     NanoleafProperties? @relation(fields: [panelId], references: [id])
-  userId    String?
-  user      User?               @relation(fields: [userId], references: [id])
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id        String   @id @default(uuid())
+  token     String   @unique
+  deviceId  String   @unique
+  device    Device   @relation(fields: [deviceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model NanoleafProperties {
-  id              String             @id @default(uuid())
+  id              String   @id @default(uuid())
   name            String
-  serialNo        String             @unique
+  serialNo        String   @unique
   firmwareVersion String
   model           String
-  palettes        Palette[]
-  authToken       NanoleafAuthToken?
   deviceId        String
-  device          Device             @relation(fields: [deviceId], references: [id])
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  device          Device   @relation(fields: [deviceId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 //* Lifx
@@ -95,10 +91,12 @@ model HueProperties {
 
 //* Color Palette
 model Palette {
-  id                 String               @id @default(uuid())
-  name               String               @unique
-  colors             String
-  nanoleafProperties NanoleafProperties[]
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  id        String   @id @default(uuid())
+  name      String   @unique
+  colors    String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  devices   Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
