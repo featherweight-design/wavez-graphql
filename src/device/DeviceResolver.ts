@@ -1,4 +1,4 @@
-import Prisma from '.prisma/client';
+import Prisma, { DeviceType } from '@prisma/client';
 import {
   Arg,
   Ctx,
@@ -10,11 +10,10 @@ import {
 } from 'type-graphql';
 import find from 'local-devices';
 
-import { Context, DeviceMacSubstringByType } from 'types';
-import { Device, WifiDevice } from './Device';
-import { User } from 'user';
-import { DeviceType } from '@prisma/client';
 import { Palette } from 'palettes';
+import { Context, DeviceMacSubstringByType } from 'types';
+import { User } from 'user';
+import { Device, WifiDevice } from './Device';
 import { NanoleafAuthToken, NanoleafProperties } from 'nanoleaf';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
