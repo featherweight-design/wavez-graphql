@@ -17,7 +17,6 @@ model User {
   name      String?
   devices   Device[]
   palettes  Palette[]
-  lastLogin DateTime
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
