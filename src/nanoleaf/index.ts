@@ -2,7 +2,7 @@ import {
   NanoleafAuthToken,
   NanoleafAuthTokenResolver,
 } from 'nanoleaf/authToken';
-import { NanoleafProperties, NanoleafPropertiesResolver } from './panel';
+import { NanoleafProperties, NanoleafPropertiesResolver } from './properties';
 import { NanoleafState, NanoleafStateResolver } from './state';
 
 export {
