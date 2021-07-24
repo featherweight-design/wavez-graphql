@@ -161,7 +161,7 @@ class DeviceResolver {
   ): Promise<boolean> {
     try {
       const devices = await prisma.device.findMany({
-        where: { userId: userId, type: 'NANOLEAF' },
+        where: { userId: userId },
         include: { nanoleafAuthToken: true },
       });
 
@@ -171,17 +171,61 @@ class DeviceResolver {
         );
       }
 
-      devices.forEach(async ({ ip, nanoleafAuthToken }) => {
-        if (nanoleafAuthToken) {
-          const stateInput = {
-            on: {
-              value: isOn.toString(),
-            },
-          };
-
-          await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
+      devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
+        if (!nanoleafAuthToken) {
+          throw new Error(
+            `Device by id ${id} does not have an associated auth token`
+          );
         }
+
+        const stateInput = {
+          on: {
+            value: isOn.toString(),
+          },
+        };
+
+        await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
       });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async updateDevicePowerById(
+    @Arg('id') id: string,
+    @Arg('isOn') isOn: boolean,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      const device = await prisma.device.findUnique({
+        where: { id },
+        include: { nanoleafAuthToken: true },
+      });
+
+      if (!device) {
+        throw new UserInputError(`Device by id ${id} does no exist`);
+      }
+
+      if (!device.nanoleafAuthToken) {
+        throw new Error(
+          `Device by id ${id} does not have an associated auth token`
+        );
+      }
+
+      const { ip, nanoleafAuthToken } = device;
+
+      const stateInput = {
+        on: {
+          value: isOn.toString(),
+        },
+      };
+
+      await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
 
       return true;
     } catch (error) {
