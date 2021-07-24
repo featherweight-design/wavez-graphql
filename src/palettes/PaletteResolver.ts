@@ -15,6 +15,7 @@ import { User } from 'user';
 import Palette from './Palette';
 import { getPaletteSyncConfig } from './utils';
 import { updateCurrentEffect, updateEffectName } from 'nanoleaf/utils';
+import { DeviceType } from '@prisma/client';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -211,6 +212,74 @@ class PaletteResolver {
         device.ip,
         device.nanoleafAuthToken.token,
         palette.name
+      );
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async setPaletteToDeviceByType(
+    @Arg('type') type: DeviceType,
+    @Arg('paletteId') paletteId: string,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      //* Grab palette
+      const palette = await prisma.palette.findUnique({
+        where: {
+          id: paletteId,
+        },
+        select: {
+          name: true,
+        },
+      });
+
+      if (!palette) {
+        throw new UserInputError(`No palette exists by id ${paletteId}`);
+      }
+
+      //* Grab all devices
+      const devices = await prisma.device.findMany({
+        where: {
+          type,
+        },
+        select: {
+          id: true,
+          ip: true,
+          nanoleafAuthToken: {
+            select: {
+              token: true,
+            },
+          },
+        },
+      });
+
+      if (!devices.length) {
+        throw new UserInputError(`Devices by type ${type} do not exist`);
+      }
+
+      //* Make update calls to Nanoleaf devices
+      await Promise.all(
+        devices.map(async device => {
+          //* Handle errors for auth token
+          if (!device.nanoleafAuthToken) {
+            throw new Error(
+              `Device by id ${device.id} does not have an associated auth token`
+            );
+          }
+
+          //* Update through Nanoleaf API
+          await updateCurrentEffect(
+            device.ip,
+            device.nanoleafAuthToken.token,
+            palette.name
+          );
+        })
       );
 
       return true;
