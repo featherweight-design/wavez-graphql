@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from 'type-graphql';
 
 @ObjectType()
-class NanoleafPanel {
+class NanoleafProperties {
   @Field(() => ID)
   id: string;
 
@@ -18,4 +18,4 @@ class NanoleafPanel {
   model: string;
 }
 
-export default NanoleafPanel;
+export default NanoleafProperties;
