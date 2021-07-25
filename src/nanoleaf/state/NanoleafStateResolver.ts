@@ -4,6 +4,7 @@ import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { Context } from 'types';
 import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
 import { updateCurrentState } from 'nanoleaf/utils';
+import { errors as deviceErrors } from 'device/definitions';
 import { errors as userErrors } from 'user/definitions';
 import { NanoleafState } from './NanoleafState';
 
@@ -22,12 +23,14 @@ class NanoleafStateResolver {
       });
 
       if (!device) {
-        throw new UserInputError(`Device by id ${deviceId} does not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(deviceId))
+        );
       }
 
       if (!device.nanoleafAuthToken) {
         throw new Error(
-          `Device by id ${device.id} does not have an associated auth token`
+          JSON.stringify(deviceErrors.deviceNoAuthToken(deviceId))
         );
       }
 

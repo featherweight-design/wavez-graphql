@@ -1,7 +1,7 @@
 import { ErrorResponse } from 'types';
 
 const errors = {
-  userNoFound: (userId: string): ErrorResponse => ({
+  userNotFound: (userId: string): ErrorResponse => ({
     status: 404,
     message: `User by id ${userId} does not exist`,
     friendlyMessage: "We can't find that user. Please try again.",
