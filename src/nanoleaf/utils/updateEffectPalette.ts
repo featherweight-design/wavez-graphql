@@ -1,8 +1,8 @@
 import fetch from 'node-fetch';
-import { UserInputError } from 'apollo-server';
 
 import { constants } from 'nanoleaf/definitions';
-import { NanoleafColorResponse, NanoLeafAnimationResponse } from 'types';
+import { NanoLeafAnimationResponse } from 'types';
+import { validateColorJson } from 'palettes/utils';
 import getEffectDetailsByName from './getEffectDetailsByName';
 import validateNanoleafResponse from './validateNanoleafResponse';
 
@@ -47,22 +47,6 @@ interface UpdateEffectPaletteArgs {
  * }
  */
 
-const validateColors = (colors: NanoleafColorResponse[]): boolean => {
-  let isValid = true;
-
-  colors.forEach(({ hue, saturation, brightness }) => {
-    if (
-      hue === undefined ||
-      saturation === undefined ||
-      brightness === undefined
-    ) {
-      isValid = false;
-    }
-  });
-
-  return isValid;
-};
-
 const updateEffectPalette = async ({
   authToken,
   colors,
@@ -71,14 +55,7 @@ const updateEffectPalette = async ({
 }: UpdateEffectPaletteArgs): Promise<void> => {
   try {
     //* Validate colors to have { hue, saturation, brightness }
-    const parsedColors = JSON.parse(colors) as NanoleafColorResponse[];
-    const isValid = validateColors(parsedColors);
-
-    if (!isValid) {
-      throw new UserInputError(
-        'User input of "colors" is not valid. Ensure that each color has { hue, saturation, brightness }'
-      );
-    }
+    const parsedColors = validateColorJson(colors);
 
     //* Get existing effect from device
     const existingEffectProperties = await getEffectDetailsByName(
