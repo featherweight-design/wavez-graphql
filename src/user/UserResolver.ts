@@ -11,7 +11,7 @@ import {
 import { Device } from 'device';
 import { Context } from 'types';
 import User from './User';
-import { CreateUserInput } from './UserInputs';
+import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
 
 @Resolver(User)
@@ -75,6 +75,28 @@ class UserResolver {
     });
 
     return user;
+  }
+
+  @Mutation(() => User)
+  async updateUser(
+    @Arg('id') id: string,
+    @Arg('input') input: UpdateUserInput,
+    @Ctx() { prisma }: Context
+  ): Promise<User> {
+    try {
+      const updatedUser = prisma.user.update({
+        where: {
+          id,
+        },
+        data: input,
+      });
+
+      return updatedUser;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 }
 

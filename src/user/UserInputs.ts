@@ -9,4 +9,10 @@ class CreateUserInput {
   name?: string | null;
 }
 
-export { CreateUserInput };
+@InputType()
+class UpdateUserInput {
+  @Field(() => String, { nullable: true })
+  name?: string | null;
+}
+
+export { CreateUserInput, UpdateUserInput };
