@@ -13,10 +13,11 @@ import { Device } from 'device';
 import { Context } from 'types';
 import { User } from 'user';
 import Palette from './Palette';
-import { getPaletteSyncConfig } from './utils';
+import { getPaletteSyncConfig, validateColorJson } from './utils';
 import { updateCurrentEffect, updateEffectName } from 'nanoleaf/utils';
 import { DeviceType } from '@prisma/client';
 import updateEffectPalette from 'nanoleaf/utils/updateEffectPalette';
+import { CreatePaletteInput } from './PaletteInputs';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -76,6 +77,33 @@ class PaletteResolver {
     });
 
     return palette;
+  }
+
+  @Mutation(() => Palette)
+  async createPalette(
+    @Arg('input') input: CreatePaletteInput,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette> {
+    try {
+      //* Parse and validate colors
+      const parsedColors = validateColorJson(input.colors);
+
+      //* Add to DB
+      const palette = prisma.palette.create({
+        data: {
+          name: input.name,
+          colors: JSON.stringify(parsedColors),
+          userId: input.userId,
+        },
+      });
+
+      //* Return palette
+      return palette;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Mutation(() => String)
