@@ -14,26 +14,32 @@ class NanoleafStateResolver {
     @Arg('stateInput') stateInput: NanoleafStateInput,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
-    const device = await prisma.device.findUnique({
-      where: { id: deviceId },
-      include: { nanoleafAuthToken: true },
-    });
+    try {
+      const device = await prisma.device.findUnique({
+        where: { id: deviceId },
+        include: { nanoleafAuthToken: true },
+      });
 
-    if (!device) {
-      throw new UserInputError(`Device by id ${deviceId} does not exist`);
+      if (!device) {
+        throw new UserInputError(`Device by id ${deviceId} does not exist`);
+      }
+
+      if (!device.nanoleafAuthToken) {
+        throw new Error(
+          `Device by id ${device.id} does not have an associated auth token`
+        );
+      }
+
+      const { ip, nanoleafAuthToken } = device;
+
+      await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
     }
-
-    if (!device.nanoleafAuthToken) {
-      throw new Error(
-        `Device by id ${device.id} does not have an associated auth token`
-      );
-    }
-
-    const { ip, nanoleafAuthToken } = device;
-
-    await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
-
-    return true;
   }
 
   @Mutation(() => Boolean)
@@ -42,25 +48,30 @@ class NanoleafStateResolver {
     @Arg('userId') userId: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
-    // TODO: Update to utility
-    const devices = await prisma.device.findMany({
-      where: { userId: userId, type: 'NANOLEAF' },
-      include: { nanoleafAuthToken: true },
-    });
+    try {
+      const devices = await prisma.device.findMany({
+        where: { userId: userId, type: 'NANOLEAF' },
+        include: { nanoleafAuthToken: true },
+      });
 
-    if (!devices.length) {
-      throw new UserInputError(
-        `User by id ${userId} has no associated devices`
-      );
-    }
-
-    devices.forEach(async ({ ip, nanoleafAuthToken }) => {
-      if (nanoleafAuthToken) {
-        await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
+      if (!devices.length) {
+        throw new UserInputError(
+          `User by id ${userId} has no associated devices`
+        );
       }
-    });
 
-    return true;
+      devices.forEach(async ({ ip, nanoleafAuthToken }) => {
+        if (nanoleafAuthToken) {
+          await updateCurrentState(ip, nanoleafAuthToken.token, stateInput);
+        }
+      });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 }
 
