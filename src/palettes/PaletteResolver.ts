@@ -16,6 +16,7 @@ import Palette from './Palette';
 import { getPaletteSyncConfig } from './utils';
 import { updateCurrentEffect, updateEffectName } from 'nanoleaf/utils';
 import { DeviceType } from '@prisma/client';
+import updateEffectPalette from 'nanoleaf/utils/updateEffectPalette';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -424,10 +425,80 @@ class PaletteResolver {
     }
   }
 
-  // @Mutation(() => Palette)
-  // async updatePaletteColorsById(
-  //   @
-  // )
+  @Mutation(() => Palette)
+  async updatePaletteColorsById(
+    @Arg('id') id: string,
+    @Arg('newColors') newColors: string,
+    @Ctx() { prisma }: Context
+  ): Promise<Palette> {
+    try {
+      //* Get all devices by Palette id
+      const palette = await prisma.palette.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          name: true,
+          devices: {
+            select: {
+              id: true,
+              ip: true,
+              nanoleafAuthToken: {
+                select: {
+                  token: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!palette) {
+        throw new Error(`Palette not found by id: ${id}`);
+      }
+
+      if (!palette.devices.length) {
+        throw new Error(
+          `Palette by id ${id} does not have any associated devices`
+        );
+      }
+
+      //* Update palette in Nanoleaf first
+      await Promise.all(
+        palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
+          if (!nanoleafAuthToken) {
+            throw new Error(
+              `Device by id ${id} does not have an associate auth token`
+            );
+          }
+
+          await updateEffectPalette({
+            ipAddress: ip,
+            authToken: nanoleafAuthToken?.token,
+            paletteName: palette.name,
+            colors: newColors,
+          });
+        })
+      );
+
+      //* On success, update palette in DB
+      //* Return updated Palette
+      const updatedPalette = await prisma.palette.update({
+        where: {
+          id,
+        },
+        data: {
+          colors: newColors,
+        },
+      });
+
+      return updatedPalette;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
 }
 
 export default PaletteResolver;
