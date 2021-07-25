@@ -102,9 +102,6 @@ class PaletteResolver {
         where: {
           id: paletteId,
         },
-        select: {
-          name: true,
-        },
       });
 
       if (!palette) {
@@ -116,14 +113,8 @@ class PaletteResolver {
         where: {
           userId,
         },
-        select: {
-          id: true,
-          ip: true,
-          nanoleafAuthToken: {
-            select: {
-              token: true,
-            },
-          },
+        include: {
+          nanoleafAuthToken: true,
         },
       });
 
@@ -172,9 +163,6 @@ class PaletteResolver {
         where: {
           id: paletteId,
         },
-        select: {
-          name: true,
-        },
       });
 
       if (!palette) {
@@ -186,14 +174,8 @@ class PaletteResolver {
         where: {
           id: deviceId,
         },
-        select: {
-          id: true,
-          ip: true,
-          nanoleafAuthToken: {
-            select: {
-              token: true,
-            },
-          },
+        include: {
+          nanoleafAuthToken: true,
         },
       });
 
@@ -235,9 +217,6 @@ class PaletteResolver {
         where: {
           id: paletteId,
         },
-        select: {
-          name: true,
-        },
       });
 
       if (!palette) {
@@ -249,14 +228,8 @@ class PaletteResolver {
         where: {
           type,
         },
-        select: {
-          id: true,
-          ip: true,
-          nanoleafAuthToken: {
-            select: {
-              token: true,
-            },
-          },
+        include: {
+          nanoleafAuthToken: true,
         },
       });
 
@@ -337,7 +310,7 @@ class PaletteResolver {
           data: {
             palettes: paletteConfig,
           },
-          select: {
+          include: {
             palettes: true,
           },
         })
@@ -363,17 +336,10 @@ class PaletteResolver {
         where: {
           id,
         },
-        select: {
-          name: true,
+        include: {
           devices: {
-            select: {
-              id: true,
-              ip: true,
-              nanoleafAuthToken: {
-                select: {
-                  token: true,
-                },
-              },
+            include: {
+              nanoleafAuthToken: true,
             },
           },
         },
@@ -438,17 +404,10 @@ class PaletteResolver {
         where: {
           id,
         },
-        select: {
-          name: true,
+        include: {
           devices: {
-            select: {
-              id: true,
-              ip: true,
-              nanoleafAuthToken: {
-                select: {
-                  token: true,
-                },
-              },
+            include: {
+              nanoleafAuthToken: true,
             },
           },
         },
