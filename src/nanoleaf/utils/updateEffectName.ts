@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 
 import { constants } from 'nanoleaf/definitions';
+import validateNanoleafResponse from './validateNanoleafResponse';
 
 const { endpoints } = constants;
 
@@ -26,16 +27,21 @@ const updateEffectName = async ({
   newName,
 }: UpdateEffectNameArgs): Promise<void> => {
   try {
-    await fetch(endpoints.update.effect(ipAddress, authToken), {
-      method: 'PUT',
-      body: JSON.stringify({
-        write: {
-          command: 'rename',
-          animName: existingName,
-          newName,
-        },
-      }),
-    });
+    const response = await fetch(
+      endpoints.update.effect(ipAddress, authToken),
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          write: {
+            command: 'rename',
+            animName: existingName,
+            newName,
+          },
+        }),
+      }
+    );
+
+    validateNanoleafResponse(response, ipAddress);
   } catch (error) {
     throw new Error(error);
   }
