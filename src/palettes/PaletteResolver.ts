@@ -321,6 +321,7 @@ class PaletteResolver {
         userId,
         nanoleafAuthToken: { token },
       } = device;
+
       const paletteConfig = await getPaletteSyncConfig({
         ip,
         prisma,
