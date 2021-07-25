@@ -8,11 +8,19 @@ const getEffectsList = async (
   ipAddress: string,
   authToken: string
 ): Promise<string[]> => {
-  const response = await fetch(endpoints.get.effectsList(ipAddress, authToken));
+  try {
+    const response = await fetch(
+      endpoints.get.effectsList(ipAddress, authToken)
+    );
 
-  const effectsList = (await response.json()) as string[];
+    const effectsList = (await response.json()) as string[];
 
-  return effectsList;
+    return effectsList;
+  } catch (error) {
+    console.error(error);
+
+    throw error;
+  }
 };
 
 export default getEffectsList;

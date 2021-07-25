@@ -3,26 +3,29 @@ import fetch from 'node-fetch';
 
 import { NanoleafAuthenticationResponse } from 'types';
 import { constants, errors } from '../definitions';
+import validateNanoleafResponse from './validateNanoleafResponse';
 
 const { endpoints } = constants;
 
 const authenticateWithNanoleafDevice = async (
   ipAddress: string
 ): Promise<string> => {
-  const response = await fetch(endpoints.authenticate(ipAddress), {
-    method: 'POST',
-  });
+  try {
+    const response = await fetch(endpoints.authenticate(ipAddress), {
+      method: 'POST',
+    });
 
-  if (!response.ok && (response.status === 401 || response.status === 403)) {
-    const error = errors.auth(response.status);
+    validateNanoleafResponse(response, ipAddress);
 
-    throw new UserInputError(error.message, error);
+    const { auth_token: authToken } =
+      (await response.json()) as NanoleafAuthenticationResponse;
+
+    return authToken;
+  } catch (error) {
+    console.error(error);
+
+    throw error;
   }
-
-  const { auth_token: authToken } =
-    (await response.json()) as NanoleafAuthenticationResponse;
-
-  return authToken;
 };
 
 export default authenticateWithNanoleafDevice;

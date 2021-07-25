@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 
 import { constants } from 'nanoleaf/definitions';
 import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
+import validateNanoleafResponse from './validateNanoleafResponse';
 
 const { endpoints } = constants;
 
@@ -29,12 +30,16 @@ const updateCurrentState = async (
   body: NanoleafStateInput
 ): Promise<void> => {
   try {
-    await fetch(endpoints.update.state(ipAddress, authToken), {
+    const response = await fetch(endpoints.update.state(ipAddress, authToken), {
       method: 'PUT',
       body: JSON.stringify(checkForOnState(body)),
     });
+
+    validateNanoleafResponse(response, ipAddress);
   } catch (error) {
-    throw new Error(error);
+    console.error(error);
+
+    throw error;
   }
 };
 

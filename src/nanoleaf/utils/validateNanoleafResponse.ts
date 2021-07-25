@@ -1,4 +1,8 @@
-import { UserInputError, AuthenticationError } from 'apollo-server';
+import {
+  UserInputError,
+  AuthenticationError,
+  ForbiddenError,
+} from 'apollo-server';
 import { Response } from 'node-fetch';
 
 const validateNanoleafResponse = (
@@ -20,6 +24,12 @@ const validateNanoleafResponse = (
 
   if (response.status === 404) {
     throw new Error(`No device at ipAddress ${ipAddress} was found`);
+  }
+
+  if (response.status === 403) {
+    throw new ForbiddenError(
+      'The provided authToken is not registered with this device'
+    );
   }
 };
 
