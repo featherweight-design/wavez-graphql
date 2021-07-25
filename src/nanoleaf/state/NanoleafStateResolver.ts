@@ -2,9 +2,10 @@ import { UserInputError } from 'apollo-server-errors';
 import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 
 import { Context } from 'types';
-import { updateCurrentState } from 'nanoleaf/utils';
-import { NanoleafState } from './NanoleafState';
 import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
+import { updateCurrentState } from 'nanoleaf/utils';
+import { errors as userErrors } from 'user/definitions';
+import { NanoleafState } from './NanoleafState';
 
 @Resolver(NanoleafState)
 class NanoleafStateResolver {
@@ -56,7 +57,7 @@ class NanoleafStateResolver {
 
       if (!devices.length) {
         throw new UserInputError(
-          `User by id ${userId} has no associated devices`
+          JSON.stringify(userErrors.userNoDevices(userId))
         );
       }
 

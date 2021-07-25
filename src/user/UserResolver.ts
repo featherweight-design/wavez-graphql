@@ -14,6 +14,7 @@ import User from './User';
 import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
 import { UserInputError } from 'apollo-server';
+import { errors as userErrors } from './definitions';
 
 @Resolver(User)
 class UserResolver {
@@ -71,7 +72,7 @@ class UserResolver {
       const user = await prisma.user.findUnique({ where: { id } });
 
       if (!user) {
-        throw new UserInputError(`User by id ${id} does not exist`);
+        throw new UserInputError(JSON.stringify(userErrors.userNoFound(id)));
       }
 
       return user;
