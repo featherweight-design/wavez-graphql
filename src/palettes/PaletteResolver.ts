@@ -1,3 +1,4 @@
+import { DeviceType } from '@prisma/client';
 import { UserInputError } from 'apollo-server';
 import {
   Arg,
@@ -12,12 +13,15 @@ import {
 import { Device } from 'device';
 import { Context } from 'types';
 import { User } from 'user';
+import {
+  updateCurrentEffect,
+  updateEffectName,
+  updateEffectPalette,
+} from 'nanoleaf/utils';
+import { errors as userErrors } from 'user/definitions';
 import Palette from './Palette';
-import { getPaletteSyncConfig, validateColorJson } from './utils';
-import { updateCurrentEffect, updateEffectName } from 'nanoleaf/utils';
-import { DeviceType } from '@prisma/client';
-import updateEffectPalette from 'nanoleaf/utils/updateEffectPalette';
 import { CreatePaletteInput } from './PaletteInputs';
+import { getPaletteSyncConfig, validateColorJson } from './utils';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -148,7 +152,7 @@ class PaletteResolver {
 
       if (!devices.length) {
         throw new UserInputError(
-          `User by id ${userId} has no associated devices`
+          JSON.stringify(userErrors.userNoDevices(userId))
         );
       }
 

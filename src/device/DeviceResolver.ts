@@ -1,4 +1,5 @@
 import Prisma, { DeviceType } from '@prisma/client';
+import { UserInputError } from 'apollo-server';
 import {
   Arg,
   Ctx,
@@ -10,13 +11,13 @@ import {
 } from 'type-graphql';
 import find from 'local-devices';
 
+import { NanoleafAuthToken, NanoleafProperties } from 'nanoleaf';
 import { Palette } from 'palettes';
 import { Context, DeviceMacSubstringByType } from 'types';
 import { User } from 'user';
-import { Device, WifiDevice } from './Device';
-import { NanoleafAuthToken, NanoleafProperties } from 'nanoleaf';
-import { UserInputError } from 'apollo-server';
 import { updateCurrentState } from 'nanoleaf/utils';
+import { errors as userErrors } from 'user/definitions';
+import { Device, WifiDevice } from './Device';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
@@ -131,7 +132,7 @@ class DeviceResolver {
 
       if (!devices.length) {
         throw new UserInputError(
-          `User by if ${userId} has no associated devices`
+          JSON.stringify(userErrors.userNoDevices(userId))
         );
       }
 
@@ -205,7 +206,7 @@ class DeviceResolver {
 
       if (!devices.length) {
         throw new UserInputError(
-          `User by id ${userId} has no associated devices`
+          JSON.stringify(userErrors.userNoDevices(userId))
         );
       }
 
