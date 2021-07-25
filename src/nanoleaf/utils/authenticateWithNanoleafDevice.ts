@@ -1,8 +1,7 @@
-import { UserInputError } from 'apollo-server';
 import fetch from 'node-fetch';
 
 import { NanoleafAuthenticationResponse } from 'types';
-import { constants, errors } from '../definitions';
+import { constants } from '../definitions';
 import validateNanoleafResponse from './validateNanoleafResponse';
 
 const { endpoints } = constants;
