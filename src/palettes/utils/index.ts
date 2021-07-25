@@ -1,3 +1,4 @@
 import getPaletteSyncConfig from './getPaletteSyncConfig';
+import validateColorJson from './validateColorJson';
 
-export { getPaletteSyncConfig };
+export { getPaletteSyncConfig, validateColorJson };
