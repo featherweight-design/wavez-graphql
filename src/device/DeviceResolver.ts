@@ -85,24 +85,36 @@ class DeviceResolver {
 
   @Query(() => [WifiDevice])
   async discoverWifiDevices(): Promise<WifiDevice[]> {
-    const devices = await find();
+    try {
+      const devices = await find();
 
-    return devices;
+      return devices;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Query(() => [WifiDevice])
   async discoverWifiDevicesByType(
     @Arg('type') type: DeviceType
   ): Promise<WifiDevice[]> {
-    const devices = await this.discoverWifiDevices();
+    try {
+      const devices = await this.discoverWifiDevices();
 
-    const filteredDevices = devices.filter((device: WifiDevice) => {
-      const match = findeDeviceByType(device, DeviceMacSubstringByType[type]);
+      const filteredDevices = devices.filter((device: WifiDevice) => {
+        const match = findeDeviceByType(device, DeviceMacSubstringByType[type]);
 
-      return match;
-    });
+        return match;
+      });
 
-    return filteredDevices;
+      return filteredDevices;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Query(() => [Device])
@@ -110,13 +122,25 @@ class DeviceResolver {
     @Arg('userId') userId: string,
     @Ctx() { prisma }: Context
   ): Promise<Prisma.Device[]> {
-    const devices = await prisma.device.findMany({
-      where: {
-        userId,
-      },
-    });
+    try {
+      const devices = await prisma.device.findMany({
+        where: {
+          userId,
+        },
+      });
 
-    return devices;
+      if (!devices.length) {
+        throw new UserInputError(
+          `User by if ${userId} has no associated devices`
+        );
+      }
+
+      return devices;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Query(() => Device, { nullable: true })
@@ -124,13 +148,23 @@ class DeviceResolver {
     @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<Device | null> {
-    const device = await prisma.device.findUnique({
-      where: {
-        id,
-      },
-    });
+    try {
+      const device = await prisma.device.findUnique({
+        where: {
+          id,
+        },
+      });
 
-    return device;
+      if (!device) {
+        throw new UserInputError(`Device by id ${id} does not exist`);
+      }
+
+      return device;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Mutation(() => String)
@@ -139,11 +173,15 @@ class DeviceResolver {
     @Ctx() { prisma }: Context
   ): Promise<string> {
     try {
-      await prisma.device.delete({
+      const device = await prisma.device.delete({
         where: {
           id,
         },
       });
+
+      if (!device) {
+        throw new UserInputError(`Device by id ${id} does not exist`);
+      }
 
       return id;
     } catch (error) {
@@ -281,16 +319,26 @@ class DeviceResolver {
     @Arg('name') name: string,
     @Ctx() { prisma }: Context
   ): Promise<Device | null> {
-    const device = await prisma.device.update({
-      where: {
-        id,
-      },
-      data: {
-        name,
-      },
-    });
+    try {
+      const device = await prisma.device.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+        },
+      });
 
-    return device;
+      if (!device) {
+        throw new UserInputError(`Device by id ${id} does not exist`);
+      }
+
+      return device;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 }
 
