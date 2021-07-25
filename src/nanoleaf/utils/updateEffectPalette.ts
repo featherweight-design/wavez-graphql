@@ -4,6 +4,7 @@ import { UserInputError } from 'apollo-server';
 import { constants } from 'nanoleaf/definitions';
 import { NanoleafColorResponse, NanoLeafAnimationResponse } from 'types';
 import getEffectDetailsByName from './getEffectDetailsByName';
+import validateNanoleafResponse from './validateNanoleafResponse';
 
 const { endpoints } = constants;
 
@@ -16,9 +17,33 @@ interface UpdateEffectPaletteArgs {
 
 /** Example body request
  * {
- *  "command": "rename",
- *  "animName": "My Flow Animation",
- *  "newName": "My New Flow Animation"
+ *   command: 'add',
+ *   version: '2.0',
+ *   animName: 'Aquarium',
+ *   animType: 'plugin',
+ *   colorType: 'HSB',
+ *   palette: [ { hue: 198, saturation: 46, brightness: 100, probability: 0 } ],
+ *   pluginType: 'color',
+ *   pluginUuid: 'ba632d3e-9c2b-4413-a965-510c839b3f71',
+ *   pluginOptions: [
+ *     { name: 'delayTime', value: 20 },
+ *     { name: 'transTime', value: 46 }
+ *   ],
+ *   hasOverlay: false
+ * }
+ * {
+ *   version: '2.0',
+ *   animName: 'Aquarium',
+ *   animType: 'plugin',
+ *   colorType: 'HSB',
+ *   palette: [ { hue: 198, saturation: 46, brightness: 100, probability: 0 } ],
+ *   pluginType: 'color',
+ *   pluginUuid: 'ba632d3e-9c2b-4413-a965-510c839b3f71',
+ *   pluginOptions: [
+ *     { name: 'delayTime', value: 20 },
+ *     { name: 'transTime', value: 46 }
+ *   ],
+ *   hasOverlay: false
  * }
  */
 
@@ -26,7 +51,11 @@ const validateColors = (colors: NanoleafColorResponse[]): boolean => {
   let isValid = true;
 
   colors.forEach(({ hue, saturation, brightness }) => {
-    if (!hue || !saturation || !brightness) {
+    if (
+      hue === undefined ||
+      saturation === undefined ||
+      brightness === undefined
+    ) {
       isValid = false;
     }
   });
@@ -65,15 +94,21 @@ const updateEffectPalette = async ({
     };
 
     //* Update effect with Nanoleaf device
-    await fetch(endpoints.update.effect(ipAddress, authToken), {
-      method: 'PUT',
-      body: JSON.stringify({
-        write: {
-          command: 'update',
-          ...updatedEffectProperties,
-        },
-      }),
-    });
+    const response = await fetch(
+      endpoints.update.effect(ipAddress, authToken),
+      {
+        method: 'PUT',
+        body: JSON.stringify({
+          write: {
+            command: 'add',
+            ...updatedEffectProperties,
+            loop: true,
+          },
+        }),
+      }
+    );
+
+    validateNanoleafResponse(response, ipAddress);
   } catch (error) {
     console.error(error);
 

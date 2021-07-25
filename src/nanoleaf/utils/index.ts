@@ -7,6 +7,7 @@ import getEffectsList from './getEffectsList';
 import updateEffectName from './updateEffectName';
 import updateCurrentEffect from './updateCurrentEffect';
 import updateCurrentState from './updateCurrentState';
+import validateNanoleafResponse from './validateNanoleafResponse';
 
 export {
   authenticateWithNanoleafDevice,
@@ -18,4 +19,5 @@ export {
   updateEffectName,
   updateCurrentEffect,
   updateCurrentState,
+  validateNanoleafResponse,
 };
