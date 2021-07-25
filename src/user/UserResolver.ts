@@ -13,6 +13,7 @@ import { Context } from 'types';
 import User from './User';
 import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
+import { UserInputError } from 'apollo-server';
 
 @Resolver(User)
 class UserResolver {
@@ -50,9 +51,15 @@ class UserResolver {
 
   @Query(() => [User])
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
-    const users = await prisma.user.findMany();
+    try {
+      const users = await prisma.user.findMany();
 
-    return users;
+      return users;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Query(() => User, { nullable: true })
@@ -60,9 +67,19 @@ class UserResolver {
     @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<User | null> {
-    const user = await prisma.user.findUnique({ where: { id } });
+    try {
+      const user = await prisma.user.findUnique({ where: { id } });
 
-    return user;
+      if (!user) {
+        throw new UserInputError(`User by id ${id} does not exist`);
+      }
+
+      return user;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Mutation(() => User)
@@ -70,11 +87,17 @@ class UserResolver {
     @Arg('input') input: CreateUserInput,
     @Ctx() { prisma }: Context
   ): Promise<User> {
-    const user = prisma.user.create({
-      data: input,
-    });
+    try {
+      const user = prisma.user.create({
+        data: input,
+      });
 
-    return user;
+      return user;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 
   @Mutation(() => User)
