@@ -17,6 +17,7 @@ import {
   getAllPanelProperties,
 } from '../utils';
 import { Device } from 'device';
+import { UserInputError } from 'apollo-server';
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
@@ -63,10 +64,10 @@ class NanoleafAuthTokenResolver {
         : {};
 
       /**
-       * * 1. Create device with userId and connect authToken
-       * * 2a. Create nanoleafProperties (panel)
-       * * 2b. Create many palettes to nanoleafProperties
-       * * 2c. Create authToken
+       * * 1. Create device and connect to use via userId
+       * * 2. Create nanoleafAuthroken and connect to device via token
+       * * 3. Create nanoleafProperties and connect to device via device
+       * * 4. Create many or connect existing palettes to device if shouldSyncPalettes = true
        */
       await prisma.device.create({
         data: {
@@ -82,7 +83,6 @@ class NanoleafAuthTokenResolver {
               token,
             },
           },
-          palettes: paletteConfig,
           nanoleafProperties: {
             create: {
               firmwareVersion,
@@ -91,6 +91,7 @@ class NanoleafAuthTokenResolver {
               serialNo,
             },
           },
+          palettes: paletteConfig,
         },
       });
 
@@ -106,11 +107,23 @@ class NanoleafAuthTokenResolver {
     @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<string> {
-    await prisma.nanoleafAuthToken.delete({
-      where: { id },
-    });
+    try {
+      const nanoleafAuthToken = await prisma.nanoleafAuthToken.delete({
+        where: { id },
+      });
 
-    return id;
+      if (!nanoleafAuthToken) {
+        throw new UserInputError(
+          `Nanoleaf authToken by id ${id} does not exist`
+        );
+      }
+
+      return id;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
   }
 }
 
