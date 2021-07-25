@@ -18,6 +18,7 @@ import {
   updateEffectName,
   updateEffectPalette,
 } from 'nanoleaf/utils';
+import { errors as deviceErrors } from 'device/definitions';
 import { errors as userErrors } from 'user/definitions';
 import Palette from './Palette';
 import { CreatePaletteInput } from './PaletteInputs';
@@ -162,7 +163,7 @@ class PaletteResolver {
           //* Handle errors for auth token
           if (!device.nanoleafAuthToken) {
             throw new Error(
-              `Device by id ${device.id} does not have an associated auth token`
+              JSON.stringify(deviceErrors.deviceNoAuthToken(device.id))
             );
           }
 
@@ -212,13 +213,15 @@ class PaletteResolver {
       });
 
       if (!device) {
-        throw new UserInputError(`Device by id ${deviceId} does not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(deviceId))
+        );
       }
 
       //* Handle errors for auth token
       if (!device.nanoleafAuthToken) {
         throw new Error(
-          `Device by id ${device.id} does not have an associated auth token`
+          JSON.stringify(deviceErrors.deviceNoAuthToken(device.id))
         );
       }
 
@@ -275,7 +278,7 @@ class PaletteResolver {
           //* Handle errors for auth token
           if (!device.nanoleafAuthToken) {
             throw new Error(
-              `Device by id ${device.id} does not have an associated auth token`
+              JSON.stringify(deviceErrors.deviceNoAuthToken(device.id))
             );
           }
 
@@ -317,7 +320,7 @@ class PaletteResolver {
 
       if (!device.nanoleafAuthToken) {
         throw new Error(
-          `Device by id ${deviceId} does not have an associated auth token`
+          JSON.stringify(deviceErrors.deviceNoAuthToken(device.id))
         );
       }
 
@@ -391,9 +394,7 @@ class PaletteResolver {
       await Promise.all(
         palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
           if (!nanoleafAuthToken) {
-            throw new Error(
-              `Device by id ${id} does not have an associate auth token`
-            );
+            throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
           }
 
           await updateEffectName({
@@ -459,9 +460,7 @@ class PaletteResolver {
       await Promise.all(
         palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
           if (!nanoleafAuthToken) {
-            throw new Error(
-              `Device by id ${id} does not have an associate auth token`
-            );
+            throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
           }
 
           await updateEffectPalette({

@@ -17,6 +17,7 @@ import { Context, DeviceMacSubstringByType } from 'types';
 import { User } from 'user';
 import { updateCurrentState } from 'nanoleaf/utils';
 import { errors as userErrors } from 'user/definitions';
+import { errors as deviceErrors } from './definitions';
 import { Device, WifiDevice } from './Device';
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
@@ -157,7 +158,9 @@ class DeviceResolver {
       });
 
       if (!device) {
-        throw new UserInputError(`Device by id ${id} does not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(id))
+        );
       }
 
       return device;
@@ -181,7 +184,9 @@ class DeviceResolver {
       });
 
       if (!device) {
-        throw new UserInputError(`Device by id ${id} does not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(id))
+        );
       }
 
       return id;
@@ -212,9 +217,7 @@ class DeviceResolver {
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
         if (!nanoleafAuthToken) {
-          throw new Error(
-            `Device by id ${id} does not have an associated auth token`
-          );
+          throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
         }
 
         const stateInput = {
@@ -247,13 +250,13 @@ class DeviceResolver {
       });
 
       if (!device) {
-        throw new UserInputError(`Device by id ${id} does no exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(id))
+        );
       }
 
       if (!device.nanoleafAuthToken) {
-        throw new Error(
-          `Device by id ${id} does not have an associated auth token`
-        );
+        throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
       }
 
       const { ip, nanoleafAuthToken } = device;
@@ -292,9 +295,7 @@ class DeviceResolver {
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
         if (!nanoleafAuthToken) {
-          throw new Error(
-            `Device by id ${id} does not have an associated auth token`
-          );
+          throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
         }
 
         const stateInput = {
@@ -331,7 +332,9 @@ class DeviceResolver {
       });
 
       if (!device) {
-        throw new UserInputError(`Device by id ${id} does not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(id))
+        );
       }
 
       return device;

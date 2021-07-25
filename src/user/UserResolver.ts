@@ -72,7 +72,7 @@ class UserResolver {
       const user = await prisma.user.findUnique({ where: { id } });
 
       if (!user) {
-        throw new UserInputError(JSON.stringify(userErrors.userNoFound(id)));
+        throw new UserInputError(JSON.stringify(userErrors.userNotFound(id)));
       }
 
       return user;
