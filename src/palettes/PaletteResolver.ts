@@ -21,7 +21,14 @@ import {
 import { errors as deviceErrors } from 'device/definitions';
 import { errors as userErrors } from 'user/definitions';
 import Palette from './Palette';
-import { CreatePaletteInput } from './PaletteInputs';
+import {
+  CreatePaletteInput,
+  SetPaletteByDeviceIdInput,
+  SetPaletteByDeviceType,
+  SetPaletteByUserIdInput,
+  UpdatePaletteColorsInput,
+  UpdatePaletteNameInput,
+} from './PaletteInputs';
 import { getPaletteSyncConfig, validateColorJson } from './utils';
 import { errors } from './definitions';
 
@@ -126,26 +133,27 @@ class PaletteResolver {
 
   @Mutation(() => Boolean)
   async setPaletteToAllDevicesByUserId(
-    @Arg('userId') userId: string,
-    @Arg('id') id: string,
+    @Arg('input') input: SetPaletteByUserIdInput,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id,
+          id: input.id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
+        throw new UserInputError(
+          JSON.stringify(errors.paletteNotFound(input.id))
+        );
       }
 
       //* Grab all devices
       const devices = await prisma.device.findMany({
         where: {
-          userId,
+          userId: input.userId,
         },
         include: {
           nanoleafAuthToken: true,
@@ -154,7 +162,7 @@ class PaletteResolver {
 
       if (!devices.length) {
         throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(userId))
+          JSON.stringify(userErrors.userNoDevices(input.userId))
         );
       }
 
@@ -187,26 +195,27 @@ class PaletteResolver {
 
   @Mutation(() => Boolean)
   async setPaletteToDeviceById(
-    @Arg('deviceId') deviceId: string,
-    @Arg('id') id: string,
+    @Arg('input') input: SetPaletteByDeviceIdInput,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id,
+          id: input.id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
+        throw new UserInputError(
+          JSON.stringify(errors.paletteNotFound(input.id))
+        );
       }
 
       //* Grab all devices
       const device = await prisma.device.findUnique({
         where: {
-          id: deviceId,
+          id: input.deviceId,
         },
         include: {
           nanoleafAuthToken: true,
@@ -215,7 +224,7 @@ class PaletteResolver {
 
       if (!device) {
         throw new UserInputError(
-          JSON.stringify(deviceErrors.deviceNotFound(deviceId))
+          JSON.stringify(deviceErrors.deviceNotFound(input.deviceId))
         );
       }
 
@@ -243,26 +252,27 @@ class PaletteResolver {
 
   @Mutation(() => Boolean)
   async setPaletteToDeviceByType(
-    @Arg('type') type: DeviceType,
-    @Arg('id') id: string,
+    @Arg('input') input: SetPaletteByDeviceType,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id,
+          id: input.id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
+        throw new UserInputError(
+          JSON.stringify(errors.paletteNotFound(input.id))
+        );
       }
 
       //* Grab all devices
       const devices = await prisma.device.findMany({
         where: {
-          type,
+          type: input.type,
         },
         include: {
           nanoleafAuthToken: true,
@@ -271,7 +281,7 @@ class PaletteResolver {
 
       if (!devices.length) {
         throw new UserInputError(
-          JSON.stringify(deviceErrors.noDevicesByType(type))
+          JSON.stringify(deviceErrors.noDevicesByType(input.type))
         );
       }
 
@@ -366,15 +376,14 @@ class PaletteResolver {
 
   @Mutation(() => Palette)
   async updatePaletteNameById(
-    @Arg('id') id: string,
-    @Arg('newName') newName: string,
+    @Arg('input') input: UpdatePaletteNameInput,
     @Ctx() { prisma }: Context
   ): Promise<Palette> {
     try {
       //* Get all devices by Palette id
       const palette = await prisma.palette.findUnique({
         where: {
-          id,
+          id: input.id,
         },
         include: {
           devices: {
@@ -386,37 +395,43 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
+        throw new UserInputError(
+          JSON.stringify(errors.paletteNotFound(input.id))
+        );
       }
 
-      if (!palette.devices.length) {
-        throw new Error(JSON.stringify(errors.paletteNoDevices(id)));
+      if (input.shouldUpdateDevices) {
+        if (!palette.devices.length) {
+          throw new Error(JSON.stringify(errors.paletteNoDevices(input.id)));
+        }
+
+        //* Update palette in Nanoleaf first
+        await Promise.all(
+          palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
+            if (!nanoleafAuthToken) {
+              throw new Error(
+                JSON.stringify(deviceErrors.deviceNoAuthToken(id))
+              );
+            }
+
+            await updateEffectName({
+              ipAddress: ip,
+              authToken: nanoleafAuthToken?.token,
+              existingName: palette.name,
+              newName: input.newName,
+            });
+          })
+        );
       }
-
-      //* Update palette in Nanoleaf first
-      await Promise.all(
-        palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
-          if (!nanoleafAuthToken) {
-            throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
-          }
-
-          await updateEffectName({
-            ipAddress: ip,
-            authToken: nanoleafAuthToken?.token,
-            existingName: palette.name,
-            newName,
-          });
-        })
-      );
 
       //* On success, update palette in DB
       //* Return updated Palette
       const updatedPalette = await prisma.palette.update({
         where: {
-          id,
+          id: input.id,
         },
         data: {
-          name: newName,
+          name: input.newName,
         },
       });
 
@@ -430,15 +445,14 @@ class PaletteResolver {
 
   @Mutation(() => Palette)
   async updatePaletteColorsById(
-    @Arg('id') id: string,
-    @Arg('newColors') newColors: string,
+    @Arg('input') input: UpdatePaletteColorsInput,
     @Ctx() { prisma }: Context
   ): Promise<Palette> {
     try {
       //* Get all devices by Palette id
       const palette = await prisma.palette.findUnique({
         where: {
-          id,
+          id: input.id,
         },
         include: {
           devices: {
@@ -450,37 +464,43 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
+        throw new UserInputError(
+          JSON.stringify(errors.paletteNotFound(input.id))
+        );
       }
 
       if (!palette.devices.length) {
-        throw new Error(JSON.stringify(errors.paletteNoDevices(id)));
+        throw new Error(JSON.stringify(errors.paletteNoDevices(input.id)));
       }
 
-      //* Update palette in Nanoleaf first
-      await Promise.all(
-        palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
-          if (!nanoleafAuthToken) {
-            throw new Error(JSON.stringify(deviceErrors.deviceNoAuthToken(id)));
-          }
+      if (input.shouldUpdateDevices) {
+        //* Update palette in Nanoleaf first
+        await Promise.all(
+          palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
+            if (!nanoleafAuthToken) {
+              throw new Error(
+                JSON.stringify(deviceErrors.deviceNoAuthToken(id))
+              );
+            }
 
-          await updateEffectPalette({
-            ipAddress: ip,
-            authToken: nanoleafAuthToken?.token,
-            paletteName: palette.name,
-            colors: newColors,
-          });
-        })
-      );
+            await updateEffectPalette({
+              ipAddress: ip,
+              authToken: nanoleafAuthToken?.token,
+              paletteName: palette.name,
+              colors: input.newColors,
+            });
+          })
+        );
+      }
 
       //* On success, update palette in DB
       //* Return updated Palette
       const updatedPalette = await prisma.palette.update({
         where: {
-          id,
+          id: input.id,
         },
         data: {
-          colors: newColors,
+          colors: input.newColors,
         },
       });
 
