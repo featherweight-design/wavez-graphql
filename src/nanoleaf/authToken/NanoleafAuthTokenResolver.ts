@@ -11,7 +11,7 @@ import {
 import { Device } from 'device';
 import { Context } from 'types';
 import { getPaletteSyncConfig } from 'palettes/utils';
-import { errors } from './definitions';
+import { errors } from '../definitions';
 import NanoleafAuthToken from './NanoleafAuthToken';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
