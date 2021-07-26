@@ -1,4 +1,5 @@
 import { UserInputError } from 'apollo-server';
+import { errors } from 'palettes/definitions';
 
 import { NanoleafColorResponse } from 'types';
 
@@ -11,9 +12,7 @@ const validateColorJson = (colors: string): NanoleafColorResponse[] => {
       saturation === undefined ||
       brightness === undefined
     ) {
-      throw new UserInputError(
-        'User input of "colors" is not valid. Ensure that each color has { hue, saturation, brightness }'
-      );
+      throw new UserInputError(JSON.stringify(errors.paletteInvalidColors));
     }
   });
 

@@ -23,6 +23,7 @@ import { errors as userErrors } from 'user/definitions';
 import Palette from './Palette';
 import { CreatePaletteInput } from './PaletteInputs';
 import { getPaletteSyncConfig, validateColorJson } from './utils';
+import { errors } from './definitions';
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -126,19 +127,19 @@ class PaletteResolver {
   @Mutation(() => Boolean)
   async setPaletteToAllDevicesByUserId(
     @Arg('userId') userId: string,
-    @Arg('paletteId') paletteId: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id: paletteId,
+          id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(`No palette exists by id ${paletteId}`);
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
       }
 
       //* Grab all devices
@@ -187,19 +188,19 @@ class PaletteResolver {
   @Mutation(() => Boolean)
   async setPaletteToDeviceById(
     @Arg('deviceId') deviceId: string,
-    @Arg('paletteId') paletteId: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id: paletteId,
+          id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(`No palette exists by id ${paletteId}`);
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
       }
 
       //* Grab all devices
@@ -243,19 +244,19 @@ class PaletteResolver {
   @Mutation(() => Boolean)
   async setPaletteToDeviceByType(
     @Arg('type') type: DeviceType,
-    @Arg('paletteId') paletteId: string,
+    @Arg('id') id: string,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id: paletteId,
+          id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(`No palette exists by id ${paletteId}`);
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
       }
 
       //* Grab all devices
@@ -269,7 +270,9 @@ class PaletteResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(`Devices by type ${type} do not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.noDevicesByType(type))
+        );
       }
 
       //* Make update calls to Nanoleaf devices
@@ -315,7 +318,9 @@ class PaletteResolver {
       });
 
       if (!device) {
-        throw new Error(`No Device found by id: ${deviceId}`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(deviceId))
+        );
       }
 
       if (!device.nanoleafAuthToken) {
@@ -381,13 +386,11 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new Error(`Palette not found by id: ${id}`);
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
       }
 
       if (!palette.devices.length) {
-        throw new Error(
-          `Palette by id ${id} does not have any associated devices`
-        );
+        throw new Error(JSON.stringify(errors.paletteNoDevices(id)));
       }
 
       //* Update palette in Nanoleaf first
@@ -447,13 +450,11 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new Error(`Palette not found by id: ${id}`);
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound(id)));
       }
 
       if (!palette.devices.length) {
-        throw new Error(
-          `Palette by id ${id} does not have any associated devices`
-        );
+        throw new Error(JSON.stringify(errors.paletteNoDevices(id)));
       }
 
       //* Update palette in Nanoleaf first
