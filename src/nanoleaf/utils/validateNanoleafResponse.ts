@@ -5,31 +5,28 @@ import {
 } from 'apollo-server';
 import { Response } from 'node-fetch';
 
+import { errors } from '../definitions';
+
 const validateNanoleafResponse = (
   response: Response,
   ipAddress: string
 ): void => {
   if (response.status === 401) {
-    throw new AuthenticationError(
-      'User is not authenticated to communicate with this device. Please check the give ipAddress and authToken.'
-    );
+    throw new AuthenticationError(JSON.stringify(errors.unauthenticated));
   }
 
   if (response.status === 400) {
-    throw new UserInputError(
-      `Failed to update effect on Nanoleaf device at IP Address ${ipAddress}. Check all given parameters.`,
-      response
-    );
+    throw new UserInputError(JSON.stringify(errors.badJsonInput(ipAddress)));
   }
 
   if (response.status === 404) {
-    throw new Error(`No device at ipAddress ${ipAddress} was found`);
+    throw new Error(
+      JSON.stringify(errors.deviceNotFoundAtIpAddress(ipAddress))
+    );
   }
 
   if (response.status === 403) {
-    throw new ForbiddenError(
-      'The provided authToken is not registered with this device'
-    );
+    throw new ForbiddenError(JSON.stringify(errors.authTokenNotRegistered));
   }
 };
 
