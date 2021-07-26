@@ -1,3 +1,4 @@
+import { UserInputError } from 'apollo-server';
 import {
   Arg,
   Ctx,
@@ -7,8 +8,10 @@ import {
   Root,
 } from 'type-graphql';
 
+import { Device } from 'device';
 import { Context } from 'types';
 import { getPaletteSyncConfig } from 'palettes/utils';
+import { errors } from './definitions';
 import NanoleafAuthToken from './NanoleafAuthToken';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
@@ -16,8 +19,6 @@ import {
   doesDeviceExistsByIpAddress,
   getAllPanelProperties,
 } from '../utils';
-import { Device } from 'device';
-import { UserInputError } from 'apollo-server';
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
@@ -113,9 +114,7 @@ class NanoleafAuthTokenResolver {
       });
 
       if (!nanoleafAuthToken) {
-        throw new UserInputError(
-          `Nanoleaf authToken by id ${id} does not exist`
-        );
+        throw new UserInputError(JSON.stringify(errors.authTokenNotFound(id)));
       }
 
       return id;
