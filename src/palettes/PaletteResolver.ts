@@ -1,4 +1,3 @@
-import { DeviceType } from '@prisma/client';
 import { UserInputError } from 'apollo-server';
 import {
   Arg,
