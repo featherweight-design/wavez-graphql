@@ -290,7 +290,9 @@ class DeviceResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(`Devices by type ${type} do not exist`);
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.noDevicesByType(type))
+        );
       }
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
