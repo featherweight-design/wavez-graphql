@@ -1,19 +1,34 @@
+# <TITLE>
+
+## Issues
+
+- Resolves #<ISSUE_NUMBER>
+
+---
+
 ## Description
 
 <BRIEF_DESCRIPTION>
 
-- Issues:
-  - Resolves #<ISSUE_NUMBER>
+---
 
 ## Changes
 
 - 
 
+---
+
 ## Fixes
 
 - 
 
+---
+
 ## Screenshots
+
+> Screenshot description
+
+---
 
 ## Sanity Checks
 
