@@ -17,8 +17,17 @@ model User {
   name      String?
   devices   Device[]
   palettes  Palette[]
+  role      Role      @default(BASIC)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  SUPPORTER
+  ALPHA
+  BETA
+  BASIC
 }
 
 //* Device
