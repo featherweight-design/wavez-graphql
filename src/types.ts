@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { Context as ApolloContext } from 'apollo-server-core';
+import { registerEnumType } from 'type-graphql';
 
 export interface Context extends ApolloContext {
   prisma: PrismaClient;
@@ -76,3 +77,16 @@ export interface NanoleafColorResponse {
   saturation: number;
   brightness: number;
 }
+
+//* User
+export enum RoleEnum {
+  ADMIN = 'ADMIN',
+  SUPPORTER = 'SUPPORTER',
+  ALPHA = 'ALPHA',
+  BETA = 'BETA',
+  BASIC = 'BASIC',
+}
+
+registerEnumType(RoleEnum, {
+  name: 'RoleEnum',
+});
