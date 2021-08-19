@@ -1,5 +1,5 @@
-import User from './User';
+import { User, SignInResponse } from './User';
 import UserResolver from './UserResolver';
 import { CreateUserInput } from './UserInputs';
 
-export { User, UserResolver, CreateUserInput };
+export { SignInResponse, User, UserResolver, CreateUserInput };
