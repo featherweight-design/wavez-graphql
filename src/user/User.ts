@@ -18,4 +18,13 @@ class User {
   role: Role;
 }
 
-export default User;
+@ObjectType()
+class SignInResponse {
+  @Field(() => User)
+  user: User;
+
+  @Field()
+  token: string;
+}
+
+export { SignInResponse, User };

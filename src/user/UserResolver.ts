@@ -10,11 +10,11 @@ import {
 
 import { Device } from 'device';
 import { Context } from 'types';
-import User from './User';
+import { SignInResponse, User } from './User';
 import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
 import { UserInputError } from 'apollo-server';
-import { errors as userErrors } from './definitions';
+import { errors, errors as userErrors } from './definitions';
 
 @Resolver(User)
 class UserResolver {
@@ -94,6 +94,32 @@ class UserResolver {
       });
 
       return user;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Mutation(() => SignInResponse)
+  async signIn(
+    @Arg('email') email: string,
+    @Ctx() { createToken, prisma }: Context
+  ): Promise<SignInResponse> {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        throw new UserInputError(JSON.stringify(errors.userNotFound));
+      }
+
+      const token = createToken(user);
+
+      return { token, user };
     } catch (error) {
       console.error(error);
 
