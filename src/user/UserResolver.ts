@@ -86,14 +86,26 @@ class UserResolver {
   @Mutation(() => User)
   async createUser(
     @Arg('input') input: CreateUserInput,
-    @Ctx() { prisma }: Context
-  ): Promise<User> {
+    @Ctx() { createToken, prisma }: Context
+  ): Promise<SignInResponse> {
     try {
-      const user = prisma.user.create({
+      const doesUserExist = await prisma.user.findUnique({
+        where: {
+          email: input.email,
+        },
+      });
+
+      if (doesUserExist) {
+        throw new UserInputError(JSON.stringify(errors.userAlreadyExists));
+      }
+
+      const user = await prisma.user.create({
         data: input,
       });
 
-      return user;
+      const token = createToken(user);
+
+      return { token, user };
     } catch (error) {
       console.error(error);
 
