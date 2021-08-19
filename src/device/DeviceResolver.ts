@@ -1,5 +1,9 @@
-import Prisma, { DeviceType } from '@prisma/client';
-import { UserInputError } from 'apollo-server';
+import Prisma, { DeviceType, PrismaClient } from '@prisma/client';
+import {
+  AuthenticationError,
+  ForbiddenError,
+  UserInputError,
+} from 'apollo-server';
 import {
   Arg,
   Ctx,
@@ -121,19 +125,24 @@ class DeviceResolver {
 
   @Query(() => [Device])
   async getAllDevicesByUserId(
-    @Arg('userId') userId: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Prisma.Device[]> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
       const devices = await prisma.device.findMany({
         where: {
-          userId,
+          userId: user.id,
         },
       });
 
       if (!devices.length) {
         throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(userId))
+          JSON.stringify(userErrors.userNoDevices(user.id))
         );
       }
 
@@ -148,9 +157,15 @@ class DeviceResolver {
   @Query(() => Device, { nullable: true })
   async getDeviceById(
     @Arg('id') id: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Device | null> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
       const device = await prisma.device.findUnique({
         where: {
           id,
@@ -161,6 +176,10 @@ class DeviceResolver {
         throw new UserInputError(
           JSON.stringify(deviceErrors.deviceNotFound(id))
         );
+      }
+
+      if (device.userId !== user.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       return device;
@@ -174,9 +193,15 @@ class DeviceResolver {
   @Mutation(() => String)
   async deleteDeviceById(
     @Arg('id') id: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<string> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
       const device = await prisma.device.delete({
         where: {
           id,
@@ -189,6 +214,10 @@ class DeviceResolver {
         );
       }
 
+      if (device.userId !== user.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+      }
+
       return id;
     } catch (error) {
       console.error(error);
@@ -199,20 +228,29 @@ class DeviceResolver {
 
   @Mutation(() => Boolean)
   async updateAllDevicePowerByUserId(
-    @Arg('userId') userId: string,
     @Arg('isOn') isOn: boolean,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
       const devices = await prisma.device.findMany({
-        where: { userId: userId },
+        where: { userId: user.id },
         include: { nanoleafAuthToken: true },
       });
 
       if (!devices.length) {
         throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(userId))
+          JSON.stringify(userErrors.userNoDevices(user.id))
         );
+      }
+
+      if (devices[0].userId !== user.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
@@ -241,9 +279,15 @@ class DeviceResolver {
   async updateDevicePowerById(
     @Arg('id') id: string,
     @Arg('isOn') isOn: boolean,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
       const device = await prisma.device.findUnique({
         where: { id },
         include: { nanoleafAuthToken: true },
@@ -253,6 +297,10 @@ class DeviceResolver {
         throw new UserInputError(
           JSON.stringify(deviceErrors.deviceNotFound(id))
         );
+      }
+
+      if (device.userId !== user.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       if (!device.nanoleafAuthToken) {
@@ -281,9 +329,15 @@ class DeviceResolver {
   async updateDevicePowerByType(
     @Arg('type') type: DeviceType,
     @Arg('isOn') isOn: boolean,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
       const devices = await prisma.device.findMany({
         where: { type },
         include: { nanoleafAuthToken: true },
@@ -293,6 +347,10 @@ class DeviceResolver {
         throw new UserInputError(
           JSON.stringify(deviceErrors.noDevicesByType(type))
         );
+      }
+
+      if (devices[0].userId !== user.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
@@ -321,9 +379,31 @@ class DeviceResolver {
   async updateDeviceNameById(
     @Arg('id') id: string,
     @Arg('name') name: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Device | null> {
     try {
+      if (!user) {
+        throw new AuthenticationError(
+          JSON.stringify(userErrors.userNotAuthenticated)
+        );
+      }
+
+      const foundDevice = await prisma.device.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!foundDevice) {
+        throw new UserInputError(
+          JSON.stringify(deviceErrors.deviceNotFound(id))
+        );
+      }
+
+      if (foundDevice.userId !== user.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+      }
+
       const device = await prisma.device.update({
         where: {
           id,
@@ -332,12 +412,6 @@ class DeviceResolver {
           name,
         },
       });
-
-      if (!device) {
-        throw new UserInputError(
-          JSON.stringify(deviceErrors.deviceNotFound(id))
-        );
-      }
 
       return device;
     } catch (error) {
