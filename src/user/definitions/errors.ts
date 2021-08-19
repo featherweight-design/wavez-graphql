@@ -1,6 +1,12 @@
 import { ErrorResponse } from 'types';
 
 const errors = {
+  userAlreadyExists: {
+    status: 400,
+    message: 'User by email already exists',
+    friendlyMessage:
+      'This user already exists. Please sign-in with your existing credentials',
+  },
   userNotFound: (userId: string): ErrorResponse => ({
     status: 404,
     message: `User by id ${userId} does not exist`,
