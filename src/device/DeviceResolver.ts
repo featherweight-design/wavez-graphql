@@ -1,4 +1,4 @@
-import Prisma, { DeviceType, PrismaClient } from '@prisma/client';
+import Prisma, { DeviceType } from '@prisma/client';
 import {
   AuthenticationError,
   ForbiddenError,
