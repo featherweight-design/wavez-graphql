@@ -84,7 +84,7 @@ class UserResolver {
   }
 
   @Mutation(() => User)
-  async createUser(
+  async signUp(
     @Arg('input') input: CreateUserInput,
     @Ctx() { createToken, prisma }: Context
   ): Promise<SignInResponse> {
