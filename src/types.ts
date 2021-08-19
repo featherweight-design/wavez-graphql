@@ -1,9 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import { Context as ApolloContext } from 'apollo-server-core';
+import { JwtPayload } from 'jsonwebtoken';
 import { registerEnumType } from 'type-graphql';
 
+import { User } from 'user';
+import { createToken } from 'utils';
+
 export interface Context extends ApolloContext {
+  createToken: typeof createToken;
   prisma: PrismaClient;
+  user: User | null;
 }
 
 export enum DeviceMacSubstringByType {
@@ -90,3 +96,8 @@ export enum RoleEnum {
 registerEnumType(RoleEnum, {
   name: 'RoleEnum',
 });
+
+export interface UserJwtPayload extends JwtPayload {
+  id: string;
+  role: RoleEnum;
+}
