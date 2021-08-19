@@ -7,6 +7,17 @@ const errors = {
     friendlyMessage:
       'This user already exists. Please sign-in with your existing credentials',
   },
+  userNotAuthenticated: {
+    status: 400,
+    message: 'User not authenticated',
+    friendlyMessage: 'User not authenticated. Please sign in.',
+  },
+  userNotAuthorized: {
+    status: 401,
+    message: 'User not authorized',
+    friendlyMessage:
+      'User not authorized to access this resource. Please try again.',
+  },
   userNotFound: (userId: string): ErrorResponse => ({
     status: 404,
     message: `User by id ${userId} does not exist`,
