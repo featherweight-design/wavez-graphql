@@ -15,7 +15,7 @@ import { SignInResponse, User } from './User';
 import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
 import { UserInputError } from 'apollo-server';
-import { errors, errors as userErrors } from './definitions';
+import { errors } from './definitions';
 
 @Resolver(User)
 class UserResolver {
