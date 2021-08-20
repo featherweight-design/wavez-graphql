@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server-errors';
-import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
+import { Arg, Ctx, Directive, Mutation, Resolver } from 'type-graphql';
 
 import { Context } from 'types';
 import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
@@ -7,9 +7,11 @@ import { updateCurrentState } from 'nanoleaf/utils';
 import { errors as deviceErrors } from 'device/definitions';
 import { errors as userErrors } from 'user/definitions';
 import { NanoleafState } from './NanoleafState';
+import { User } from 'user';
 
 @Resolver(NanoleafState)
 class NanoleafStateResolver {
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async updateCurrentStateByDeviceId(
     @Arg('deviceId') deviceId: string,
@@ -46,15 +48,15 @@ class NanoleafStateResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async updateCurrentStateAll(
     @Arg('stateInput') stateInput: NanoleafStateInput,
-    @Arg('userId') userId: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
       const devices = await prisma.device.findMany({
-        where: { userId: userId, type: 'NANOLEAF' },
+        where: { userId: (user as User).id, type: 'NANOLEAF' },
         include: { nanoleafAuthToken: true },
       });
 
