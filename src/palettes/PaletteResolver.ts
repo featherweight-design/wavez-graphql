@@ -1,7 +1,8 @@
-import { UserInputError } from 'apollo-server';
+import { ForbiddenError, UserInputError } from 'apollo-server';
 import {
   Arg,
   Ctx,
+  Directive,
   FieldResolver,
   Mutation,
   Query,
@@ -24,7 +25,6 @@ import {
   CreatePaletteInput,
   SetPaletteByDeviceIdInput,
   SetPaletteByDeviceType,
-  SetPaletteByUserIdInput,
   UpdatePaletteColorsInput,
   UpdatePaletteNameInput,
 } from './PaletteInputs';
@@ -63,24 +63,25 @@ class PaletteResolver {
     return user;
   }
 
+  @Directive('@authenticated')
   @Query(() => [Palette])
   async getAllPalettesByUserId(
-    @Arg('userId') userId: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Palette[]> {
     const palettes = await prisma.palette.findMany({
       where: {
-        userId,
+        userId: (user as User).id,
       },
     });
 
     return palettes;
   }
 
+  @Directive('@authenticated')
   @Query(() => Palette, { nullable: true })
   async getPaletteById(
     @Arg('id') id: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Palette | null> {
     const palette = await prisma.palette.findUnique({
       where: {
@@ -88,13 +89,22 @@ class PaletteResolver {
       },
     });
 
+    if (!palette) {
+      throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+    }
+
+    if (palette.userId !== user?.id) {
+      throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+    }
+
     return palette;
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Palette)
   async createPalette(
     @Arg('input') input: CreatePaletteInput,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Palette> {
     try {
       //* Parse and validate colors
@@ -105,7 +115,7 @@ class PaletteResolver {
         data: {
           name: input.name,
           colors: JSON.stringify(parsedColors),
-          userId: input.userId,
+          userId: (user as User).id,
         },
       });
 
@@ -118,11 +128,26 @@ class PaletteResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => String)
   async deletePaletteById(
     @Arg('id') id: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<string> {
+    const palette = await prisma.palette.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!palette) {
+      throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+    }
+
+    if (palette.userId !== user?.id) {
+      throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+    }
+
     await prisma.palette.delete({
       where: { id },
     });
@@ -130,29 +155,32 @@ class PaletteResolver {
     return id;
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async setPaletteToAllDevicesByUserId(
-    @Arg('input') input: SetPaletteByUserIdInput,
-    @Ctx() { prisma }: Context
+    @Arg('id') id: string,
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
       const palette = await prisma.palette.findUnique({
         where: {
-          id: input.id,
+          id,
         },
       });
 
       if (!palette) {
-        throw new UserInputError(
-          JSON.stringify(errors.paletteNotFound(input.id))
-        );
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+      }
+
+      if (palette?.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       //* Grab all devices
       const devices = await prisma.device.findMany({
         where: {
-          userId: input.userId,
+          userId: user.id,
         },
         include: {
           nanoleafAuthToken: true,
@@ -161,6 +189,10 @@ class PaletteResolver {
 
       if (!devices.length) {
         throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
+      }
+
+      if (devices[0].userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       //* Make update calls to Nanoleaf devices
@@ -190,10 +222,11 @@ class PaletteResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async setPaletteToDeviceById(
     @Arg('input') input: SetPaletteByDeviceIdInput,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
@@ -204,9 +237,11 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new UserInputError(
-          JSON.stringify(errors.paletteNotFound(input.id))
-        );
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+      }
+
+      if (palette.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       //* Grab all devices
@@ -223,6 +258,10 @@ class PaletteResolver {
         throw new UserInputError(
           JSON.stringify(deviceErrors.deviceNotFound(input.deviceId))
         );
+      }
+
+      if (device.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       //* Handle errors for auth token
@@ -247,10 +286,11 @@ class PaletteResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async setPaletteToDeviceByType(
     @Arg('input') input: SetPaletteByDeviceType,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
       //* Grab palette
@@ -261,9 +301,11 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new UserInputError(
-          JSON.stringify(errors.paletteNotFound(input.id))
-        );
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+      }
+
+      if (palette.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       //* Grab all devices
@@ -309,10 +351,11 @@ class PaletteResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => [Palette])
   async syncPalettesByDeviceId(
     @Arg('deviceId') deviceId: string,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Palette[]> {
     try {
       const device = await prisma.device.findUnique({
@@ -334,6 +377,10 @@ class PaletteResolver {
         throw new Error(
           JSON.stringify(deviceErrors.deviceNoAuthToken(device.id))
         );
+      }
+
+      if (device.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       const {
@@ -371,10 +418,11 @@ class PaletteResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Palette)
   async updatePaletteNameById(
     @Arg('input') input: UpdatePaletteNameInput,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Palette> {
     try {
       //* Get all devices by Palette id
@@ -392,22 +440,30 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new UserInputError(
-          JSON.stringify(errors.paletteNotFound(input.id))
-        );
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+      }
+
+      if (palette.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       if (input.shouldUpdateDevices) {
         if (!palette.devices.length) {
-          throw new Error(JSON.stringify(errors.paletteNoDevices(input.id)));
+          throw new Error(JSON.stringify(errors.paletteNoDevices));
         }
 
         //* Update palette in Nanoleaf first
         await Promise.all(
-          palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
+          palette.devices.map(async ({ id, ip, nanoleafAuthToken, userId }) => {
             if (!nanoleafAuthToken) {
               throw new Error(
                 JSON.stringify(deviceErrors.deviceNoAuthToken(id))
+              );
+            }
+
+            if (userId !== user?.id) {
+              throw new ForbiddenError(
+                JSON.stringify(userErrors.userNotAuthorized)
               );
             }
 
@@ -440,10 +496,11 @@ class PaletteResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Palette)
   async updatePaletteColorsById(
     @Arg('input') input: UpdatePaletteColorsInput,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<Palette> {
     try {
       //* Get all devices by Palette id
@@ -461,22 +518,30 @@ class PaletteResolver {
       });
 
       if (!palette) {
-        throw new UserInputError(
-          JSON.stringify(errors.paletteNotFound(input.id))
-        );
+        throw new UserInputError(JSON.stringify(errors.paletteNotFound));
+      }
+
+      if (palette.userId !== user?.id) {
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
       if (!palette.devices.length) {
-        throw new Error(JSON.stringify(errors.paletteNoDevices(input.id)));
+        throw new Error(JSON.stringify(errors.paletteNoDevices));
       }
 
       if (input.shouldUpdateDevices) {
         //* Update palette in Nanoleaf first
         await Promise.all(
-          palette.devices.map(async ({ id, ip, nanoleafAuthToken }) => {
+          palette.devices.map(async ({ id, ip, nanoleafAuthToken, userId }) => {
             if (!nanoleafAuthToken) {
               throw new Error(
                 JSON.stringify(deviceErrors.deviceNoAuthToken(id))
+              );
+            }
+
+            if (userId !== user?.id) {
+              throw new ForbiddenError(
+                JSON.stringify(userErrors.userNotAuthorized)
               );
             }
 
