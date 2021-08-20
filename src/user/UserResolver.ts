@@ -1,6 +1,7 @@
 import {
   Arg,
   Ctx,
+  Directive,
   FieldResolver,
   Mutation,
   Query,
@@ -50,6 +51,7 @@ class UserResolver {
     return palettes;
   }
 
+  @Directive('@authenticated')
   @Query(() => [User])
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
     try {
@@ -63,24 +65,10 @@ class UserResolver {
     }
   }
 
-  @Query(() => User, { nullable: true })
-  async getUserById(
-    @Arg('id') id: string,
-    @Ctx() { prisma }: Context
-  ): Promise<User | null> {
-    try {
-      const user = await prisma.user.findUnique({ where: { id } });
-
-      if (!user) {
-        throw new UserInputError(JSON.stringify(userErrors.userNotFound(id)));
-      }
-
-      return user;
-    } catch (error) {
-      console.error(error);
-
-      throw error;
-    }
+  @Directive('@authenticated')
+  @Query(() => User)
+  getCurrentUser(@Ctx() { user }: Context): User {
+    return user as User;
   }
 
   @Mutation(() => User)
@@ -139,16 +127,16 @@ class UserResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => User)
   async updateUser(
-    @Arg('id') id: string,
     @Arg('input') input: UpdateUserInput,
-    @Ctx() { prisma }: Context
+    @Ctx() { prisma, user }: Context
   ): Promise<User> {
     try {
       const updatedUser = prisma.user.update({
         where: {
-          id,
+          id: (user as User).id,
         },
         data: input,
       });
