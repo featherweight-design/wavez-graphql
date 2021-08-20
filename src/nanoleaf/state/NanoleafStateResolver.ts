@@ -59,9 +59,7 @@ class NanoleafStateResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(userId))
-        );
+        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
       }
 
       devices.forEach(async ({ ip, nanoleafAuthToken }) => {
