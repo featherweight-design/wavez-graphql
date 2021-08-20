@@ -2,6 +2,7 @@ import { UserInputError } from 'apollo-server';
 import {
   Arg,
   Ctx,
+  Directive,
   FieldResolver,
   Mutation,
   Resolver,
@@ -11,6 +12,7 @@ import {
 import { Device } from 'device';
 import { Context } from 'types';
 import { getPaletteSyncConfig } from 'palettes/utils';
+import { User } from 'user';
 import { errors } from '../definitions';
 import NanoleafAuthToken from './NanoleafAuthToken';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
@@ -36,11 +38,11 @@ class NanoleafAuthTokenResolver {
     return device;
   }
 
+  @Directive('@authenticated')
   @Mutation(() => String)
   async authenticateWithDeviceByUserId(
-    @Ctx() { prisma }: Context,
+    @Ctx() { prisma, user }: Context,
     @Arg('input') input: AuthenticateNewUserInput,
-    @Arg('userId') userId: string,
     @Arg('shouldSyncPalettes', { nullable: true, defaultValue: false })
     shouldSyncPalettes?: boolean
   ): Promise<string> {
@@ -60,7 +62,7 @@ class NanoleafAuthTokenResolver {
             ip: input.ip,
             prisma,
             token,
-            userId,
+            userId: (user as User).id,
           })
         : {};
 
@@ -76,7 +78,7 @@ class NanoleafAuthTokenResolver {
           type: 'NANOLEAF',
           user: {
             connect: {
-              id: userId,
+              id: (user as User).id,
             },
           },
           nanoleafAuthToken: {
@@ -103,6 +105,7 @@ class NanoleafAuthTokenResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => String)
   async deleteNanoleafAuthToken(
     @Arg('id') id: string,
