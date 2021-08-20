@@ -23,12 +23,12 @@ const errors = {
     message: `User by id ${userId} does not exist`,
     friendlyMessage: "We can't find that user. Please try again.",
   }),
-  userNoDevices: (userId: string): ErrorResponse => ({
+  userNoDevices: {
     status: 404,
-    message: `User by id ${userId} has no associated devices`,
+    message: 'User has no associated devices',
     friendlyMessage:
       "We can't find any devices that belong to that user. Please try again.",
-  }),
+  },
 };
 
 export default errors;

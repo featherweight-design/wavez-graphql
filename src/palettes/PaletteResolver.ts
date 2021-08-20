@@ -160,9 +160,7 @@ class PaletteResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(input.userId))
-        );
+        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
       }
 
       //* Make update calls to Nanoleaf devices
