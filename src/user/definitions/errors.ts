@@ -1,5 +1,3 @@
-import { ErrorResponse } from 'types';
-
 const errors = {
   userAlreadyExists: {
     status: 400,
@@ -18,11 +16,11 @@ const errors = {
     friendlyMessage:
       'User not authorized to access this resource. Please try again.',
   },
-  userNotFound: (userId: string): ErrorResponse => ({
+  userNotFound: {
     status: 404,
-    message: `User by id ${userId} does not exist`,
+    message: 'User does not exist',
     friendlyMessage: "We can't find that user. Please try again.",
-  }),
+  },
   userNoDevices: {
     status: 404,
     message: 'User has no associated devices',
