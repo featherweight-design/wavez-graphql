@@ -8,9 +8,6 @@ class CreatePaletteInput {
 
   @Field()
   colors: string;
-
-  @Field()
-  userId: string;
 }
 
 @InputType()
@@ -29,15 +26,6 @@ class SetPaletteByDeviceType {
 
   @Field()
   type: DeviceType;
-}
-
-@InputType()
-class SetPaletteByUserIdInput {
-  @Field()
-  id: string;
-
-  @Field()
-  userId: string;
 }
 
 @InputType()
@@ -68,7 +56,6 @@ export {
   CreatePaletteInput,
   SetPaletteByDeviceIdInput,
   SetPaletteByDeviceType,
-  SetPaletteByUserIdInput,
   UpdatePaletteColorsInput,
   UpdatePaletteNameInput,
 };
