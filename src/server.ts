@@ -1,11 +1,12 @@
 import 'reflect-metadata';
 import { PrismaClient } from '@prisma/client';
-import { ApolloServer } from 'apollo-server';
+import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server';
 import dotenv from 'dotenv';
 import { buildSchemaSync } from 'type-graphql';
 
 import { Context } from 'types';
 import { DeviceResolver } from 'device';
+import { AuthenticationDirective } from 'directives';
 import { NanoleafAuthTokenResolver, NanoleafStateResolver } from 'nanoleaf';
 import { PaletteResolver } from 'palettes';
 import { UserResolver } from 'user';
@@ -26,6 +27,13 @@ const schema = buildSchemaSync({
     UserResolver,
   ],
 });
+
+// Because the schema is built by TypeGraphQL, we need to register
+// any directives through apollo-server using the below
+SchemaDirectiveVisitor.visitSchemaDirectives(schema, {
+  authenticated: AuthenticationDirective,
+});
+
 const server = new ApolloServer({
   schema,
   //* Prisma must be privided to other resolvers through context
