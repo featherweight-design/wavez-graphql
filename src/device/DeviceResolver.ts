@@ -1,9 +1,5 @@
 import Prisma, { DeviceType } from '@prisma/client';
-import {
-  AuthenticationError,
-  ForbiddenError,
-  UserInputError,
-} from 'apollo-server';
+import { ForbiddenError, UserInputError } from 'apollo-server';
 import {
   Arg,
   Ctx,
