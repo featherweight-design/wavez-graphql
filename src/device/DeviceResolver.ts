@@ -7,6 +7,7 @@ import {
 import {
   Arg,
   Ctx,
+  Directive,
   FieldResolver,
   Mutation,
   Query,
@@ -123,27 +124,21 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Query(() => [Device])
   async getAllDevicesByUserId(
     @Ctx() { prisma, user }: Context
   ): Promise<Prisma.Device[]> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
+      console.log(user);
       const devices = await prisma.device.findMany({
         where: {
-          userId: user.id,
+          userId: user?.id,
         },
       });
 
       if (!devices.length) {
-        throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(user.id))
-        );
+        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
       }
 
       return devices;
@@ -154,18 +149,13 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Query(() => Device, { nullable: true })
   async getDeviceById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
   ): Promise<Device | null> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
       const device = await prisma.device.findUnique({
         where: {
           id,
@@ -178,7 +168,7 @@ class DeviceResolver {
         );
       }
 
-      if (device.userId !== user.id) {
+      if (device.userId !== user?.id) {
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
@@ -190,18 +180,13 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => String)
   async deleteDeviceById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
   ): Promise<string> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
       const device = await prisma.device.delete({
         where: {
           id,
@@ -214,7 +199,7 @@ class DeviceResolver {
         );
       }
 
-      if (device.userId !== user.id) {
+      if (device.userId !== user?.id) {
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
@@ -226,30 +211,23 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async updateAllDevicePowerByUserId(
     @Arg('isOn') isOn: boolean,
     @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
       const devices = await prisma.device.findMany({
-        where: { userId: user.id },
+        where: { userId: user?.id },
         include: { nanoleafAuthToken: true },
       });
 
       if (!devices.length) {
-        throw new UserInputError(
-          JSON.stringify(userErrors.userNoDevices(user.id))
-        );
+        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
       }
 
-      if (devices[0].userId !== user.id) {
+      if (devices[0].userId !== user?.id) {
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
@@ -275,6 +253,7 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async updateDevicePowerById(
     @Arg('id') id: string,
@@ -282,12 +261,6 @@ class DeviceResolver {
     @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
       const device = await prisma.device.findUnique({
         where: { id },
         include: { nanoleafAuthToken: true },
@@ -299,7 +272,7 @@ class DeviceResolver {
         );
       }
 
-      if (device.userId !== user.id) {
+      if (device.userId !== user?.id) {
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
@@ -325,6 +298,7 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async updateDevicePowerByType(
     @Arg('type') type: DeviceType,
@@ -332,12 +306,6 @@ class DeviceResolver {
     @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
       const devices = await prisma.device.findMany({
         where: { type },
         include: { nanoleafAuthToken: true },
@@ -349,7 +317,7 @@ class DeviceResolver {
         );
       }
 
-      if (devices[0].userId !== user.id) {
+      if (devices[0].userId !== user?.id) {
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
@@ -375,6 +343,7 @@ class DeviceResolver {
     }
   }
 
+  @Directive('@authenticated')
   @Mutation(() => Device, { nullable: true })
   async updateDeviceNameById(
     @Arg('id') id: string,
@@ -382,12 +351,6 @@ class DeviceResolver {
     @Ctx() { prisma, user }: Context
   ): Promise<Device | null> {
     try {
-      if (!user) {
-        throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
-        );
-      }
-
       const foundDevice = await prisma.device.findUnique({
         where: {
           id,
@@ -400,7 +363,7 @@ class DeviceResolver {
         );
       }
 
-      if (foundDevice.userId !== user.id) {
+      if (foundDevice.userId !== user?.id) {
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
 
