@@ -1,5 +1,6 @@
 // Disabled because of required directive typings with any
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Role } from '@prisma/client';
 import {
   AuthenticationError,
   ForbiddenError,
@@ -12,8 +13,17 @@ import {
   GraphQLFieldResolver,
 } from 'graphql';
 
-import { Context } from 'types';
+import { Context, RoleEnum } from 'types';
+import { User } from 'user';
 import { errors as userErrors } from 'user/definitions';
+
+const ROLES_HIERARCY: Role[] = [
+  RoleEnum.BASIC,
+  RoleEnum.BETA,
+  RoleEnum.ALPHA,
+  RoleEnum.SUPPORTER,
+  RoleEnum.ADMIN,
+];
 
 class AuthenticationDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(
@@ -50,6 +60,7 @@ class AuthorizationDirective extends SchemaDirectiveVisitor {
 
     // Grab the role for this.args and compare against user.role
     const { role } = this.args;
+    const authorizationHierarchy = ROLES_HIERARCY.indexOf(role);
 
     field.resolve = (
       root,
@@ -57,7 +68,10 @@ class AuthorizationDirective extends SchemaDirectiveVisitor {
       context,
       info
     ): GraphQLFieldResolver<typeof root, typeof context> => {
-      if ((context as Context).user?.role !== role) {
+      const { user } = context as Context;
+      const userRoleHierarcy = ROLES_HIERARCY.indexOf((user as User)?.role);
+
+      if (userRoleHierarcy < authorizationHierarchy) {
         // If user.role isn't there throw an error
         throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
       }
