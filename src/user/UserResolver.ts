@@ -10,7 +10,7 @@ import {
 } from 'type-graphql';
 
 import { Device } from 'device';
-import { Context } from 'types';
+import { Context, RoleEnum } from 'types';
 import { SignInResponse, User } from './User';
 import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
@@ -52,6 +52,7 @@ class UserResolver {
   }
 
   @Directive('@authenticated')
+  @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
   @Query(() => [User])
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
     try {
@@ -71,6 +72,7 @@ class UserResolver {
     return user as User;
   }
 
+  // TODO: Add access ket restriction
   @Mutation(() => User)
   async signUp(
     @Arg('input') input: CreateUserInput,
