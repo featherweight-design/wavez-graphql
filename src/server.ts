@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { buildSchemaSync } from 'type-graphql';
 
 import { Context } from 'types';
+import { AccessKeyResolver } from 'accessKey';
 import { DeviceResolver } from 'device';
 import { AuthenticationDirective, AuthorizationDirective } from 'directives';
 import { NanoleafAuthTokenResolver, NanoleafStateResolver } from 'nanoleaf';
@@ -20,6 +21,7 @@ const prisma = new PrismaClient();
 const schema = buildSchemaSync({
   // emitSchemaFile: true,
   resolvers: [
+    AccessKeyResolver,
     DeviceResolver,
     NanoleafAuthTokenResolver,
     NanoleafStateResolver,
