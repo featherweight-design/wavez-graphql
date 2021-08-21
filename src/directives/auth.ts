@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AuthenticationError,
+  ForbiddenError,
   // ForbiddenError,
   SchemaDirectiveVisitor,
 } from 'apollo-server';
@@ -18,7 +19,6 @@ class AuthenticationDirective extends SchemaDirectiveVisitor {
   visitFieldDefinition(
     field: GraphQLField<any, any>
   ): GraphQLField<any, any> | void | null {
-    // Grab the user from the context
     const { resolve = defaultFieldResolver } = field;
 
     field.resolve = (
@@ -42,21 +42,32 @@ class AuthenticationDirective extends SchemaDirectiveVisitor {
   }
 }
 
-// class AuthorizationDirective extends SchemaDirectiveVisitor {
-//   visitFieldDefinition(field) {
-//     const resolver = field.resolve || defaultFieldResolver;
-//     // Grab the role for this.args and compare against user.role
-//     const { role } = this.args;
+class AuthorizationDirective extends SchemaDirectiveVisitor {
+  visitFieldDefinition(
+    field: GraphQLField<any, any>
+  ): GraphQLField<any, any> | void | null {
+    const { resolve = defaultFieldResolver } = field;
 
-//     field.resolve = async (root, args, context, info) => {
-//       if (context.user.role !== role) {
-//         // If user.role isn't there throw an error
-//         throw new ForbiddenError(`Not authorized, must be role of ${role}`);
-//       }
+    // Grab the role for this.args and compare against user.role
+    const { role } = this.args;
 
-//       return resolver(root, args, context, info);
-//     };
-//   }
-// }
+    field.resolve = (
+      root,
+      args,
+      context,
+      info
+    ): GraphQLFieldResolver<typeof root, typeof context> => {
+      if ((context as Context).user?.role !== role) {
+        // If user.role isn't there throw an error
+        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+      }
 
-export { AuthenticationDirective };
+      return resolve(root, args, context, info) as GraphQLFieldResolver<
+        typeof root,
+        typeof context
+      >;
+    };
+  }
+}
+
+export { AuthenticationDirective, AuthorizationDirective };

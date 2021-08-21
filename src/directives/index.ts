@@ -1,3 +1,3 @@
-import { AuthenticationDirective } from './auth';
+import { AuthenticationDirective, AuthorizationDirective } from './auth';
 
-export { AuthenticationDirective };
+export { AuthenticationDirective, AuthorizationDirective };
