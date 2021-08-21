@@ -10,16 +10,30 @@ generator client {
   provider = "prisma-client-js"
 }
 
+//* Access Keys
+model AccessKey {
+  id        String   @id @default(uuid())
+  key       String   @unique @default(uuid())
+  userId    String
+  email     String   @unique
+  createdAt DateTime @default(now())
+  expireAt  DateTime
+}
+
 //* User
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?
-  devices   Device[]
-  palettes  Palette[]
-  role      Role      @default(BASIC)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  email             String    @unique
+  name              String?
+  devices           Device[]
+  palettes          Palette[]
+  role              Role      @default(BASIC)
+  invites           Int       @default(0)
+  invitedById       String
+  invitedBy         User      @relation(fields: [invitedById], references: [id])
+  invitedUserToUser User[]    @relation("UserToUser")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 enum Role {
