@@ -44,36 +44,4 @@ const getUserFromToken = async (
   }
 };
 
-// /**
-//  * checks if the user is on the context object
-//  * continues to the next resolver if true
-//  * @param {Function} next next resolver function ro run
-//  */
-// const authenticated = next => (root, args, context, info) => {
-//   if (!context.user) {
-//     throw new AuthenticationError('Not authenticated');
-//   }
-
-//   return next(root, args, context, info);
-// };
-
-// /**
-//  * checks if the user on the context has the specified role.
-//  * continues to the next resolver if true
-//  * @param {String} role enum role to check for
-//  * @param {Function} next next resolver function to run
-//  */
-// const authorized = (role, next) => (root, args, context, info) => {
-//   if (context.user.role !== role) {
-//     throw new ForbiddenError(`Not authorized, must be role of ${role}`);
-//   }
-
-//   return next(root, args, context, info);
-// };
-
-export {
-  // authenticated,
-  // authorized,
-  createToken,
-  getUserFromToken,
-};
+export { createToken, getUserFromToken };
