@@ -24,13 +24,13 @@ model AccessKey {
 model User {
   id                String    @id @default(uuid())
   email             String    @unique
-  name              String?
+  name              String
   devices           Device[]
   palettes          Palette[]
   role              Role      @default(BASIC)
   invites           Int       @default(0)
-  invitedById       String
-  invitedBy         User      @relation(fields: [invitedById], references: [id])
+  invitedById       String?
+  invitedBy         User?     @relation(fields: [invitedById], references: [id])
   invitedUserToUser User[]    @relation("UserToUser")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
