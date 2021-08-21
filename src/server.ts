@@ -6,7 +6,7 @@ import { buildSchemaSync } from 'type-graphql';
 
 import { Context } from 'types';
 import { DeviceResolver } from 'device';
-import { AuthenticationDirective } from 'directives';
+import { AuthenticationDirective, AuthorizationDirective } from 'directives';
 import { NanoleafAuthTokenResolver, NanoleafStateResolver } from 'nanoleaf';
 import { PaletteResolver } from 'palettes';
 import { UserResolver } from 'user';
@@ -32,6 +32,7 @@ const schema = buildSchemaSync({
 // any directives through apollo-server using the below
 SchemaDirectiveVisitor.visitSchemaDirectives(schema, {
   authenticated: AuthenticationDirective,
+  authorized: AuthorizationDirective,
 });
 
 const server = new ApolloServer({
