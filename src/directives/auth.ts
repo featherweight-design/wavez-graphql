@@ -4,7 +4,6 @@ import { Role } from '@prisma/client';
 import {
   AuthenticationError,
   ForbiddenError,
-  // ForbiddenError,
   SchemaDirectiveVisitor,
 } from 'apollo-server';
 import {
