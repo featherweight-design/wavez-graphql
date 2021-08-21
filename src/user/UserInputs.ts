@@ -6,10 +6,13 @@ import { RoleEnum } from 'types';
 @InputType()
 class CreateUserInput {
   @Field()
+  accessKey: string;
+
+  @Field()
   email: string;
 
-  @Field(() => String, { nullable: true })
-  name?: string | null;
+  @Field()
+  name: string;
 }
 
 @InputType()
