@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   Arg,
   Ctx,
@@ -11,6 +12,7 @@ import {
 
 import { Device } from 'device';
 import { Context, RoleEnum } from 'types';
+import { errors as accessKeyErrors } from 'accessKey/definitions';
 import { SignInResponse, User } from './User';
 import { CreateUserInput, UpdateUserInput } from './UserInputs';
 import { Palette } from 'palettes';
@@ -72,13 +74,13 @@ class UserResolver {
     return user as User;
   }
 
-  // TODO: Add access ket restriction
-  @Mutation(() => User)
+  @Mutation(() => SignInResponse)
   async signUp(
     @Arg('input') input: CreateUserInput,
     @Ctx() { createToken, prisma }: Context
   ): Promise<SignInResponse> {
     try {
+      //* Check if email is already used
       const doesUserExist = await prisma.user.findUnique({
         where: {
           email: input.email,
@@ -89,11 +91,54 @@ class UserResolver {
         throw new UserInputError(JSON.stringify(errors.userAlreadyExists));
       }
 
+      //* Check if access key exists
+      const foundAccessKey = await prisma.accessKey.findUnique({
+        where: {
+          key: input.accessKey,
+        },
+      });
+
+      if (!foundAccessKey) {
+        throw new UserInputError(JSON.stringify(accessKeyErrors.notFound));
+      }
+
+      //* Check is email on access key matches provided email
+      if (foundAccessKey.email !== input.email) {
+        throw new UserInputError(JSON.stringify(accessKeyErrors.wrongEmail));
+      }
+
+      //* Check if access key is expired (3 days from creation)
+      if (dayjs().isAfter(dayjs(foundAccessKey.expireAt))) {
+        //* Delete access key if expired
+        await prisma.accessKey.delete({
+          where: {
+            id: foundAccessKey.id,
+          },
+        });
+
+        throw new UserInputError(JSON.stringify(accessKeyErrors.expired));
+      }
+
       const user = await prisma.user.create({
-        data: input,
+        data: {
+          email: input.email,
+          name: input.name,
+          invitedBy: {
+            connect: {
+              id: foundAccessKey.userId,
+            },
+          },
+        },
       });
 
       const token = createToken(user);
+
+      //* Delete used access key
+      await prisma.accessKey.delete({
+        where: {
+          id: foundAccessKey.id,
+        },
+      });
 
       return { token, user };
     } catch (error) {

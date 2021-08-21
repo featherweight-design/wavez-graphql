@@ -18,7 +18,7 @@ class CreateUserInput {
 @InputType()
 class UpdateUserInput {
   @Field(() => String, { nullable: true })
-  name?: string | null;
+  name?: string;
 
   @Field(() => RoleEnum, { nullable: true })
   role?: Role;
