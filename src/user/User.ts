@@ -11,11 +11,14 @@ class User {
   @Field()
   email: string;
 
-  @Field(() => String, { nullable: true })
-  name: string | null;
+  @Field()
+  name: string;
 
   @Field(() => RoleEnum)
   role: Role;
+
+  @Field()
+  invites: number;
 }
 
 @ObjectType()
