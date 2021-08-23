@@ -16,7 +16,7 @@ const validateNewAccessKey = async (
   });
 
   if (doesUserExist) {
-    throw new UserInputError(JSON.stringify(userErrors.userAlreadyExists));
+    throw new UserInputError(JSON.stringify(userErrors.alreadyExists));
   }
 
   //* Check is user has already been sent an access key

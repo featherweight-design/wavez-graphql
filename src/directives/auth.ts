@@ -39,7 +39,7 @@ class AuthenticationDirective extends SchemaDirectiveVisitor {
       if (!(context as Context).user) {
         // If the user isn't there throw an error
         throw new AuthenticationError(
-          JSON.stringify(userErrors.userNotAuthenticated)
+          JSON.stringify(userErrors.notAuthenticated)
         );
       }
 
@@ -72,7 +72,7 @@ class AuthorizationDirective extends SchemaDirectiveVisitor {
 
       if (userRoleHierarcy < authorizationHierarchy) {
         // If user.role isn't there throw an error
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       return resolve(root, args, context, info) as GraphQLFieldResolver<
