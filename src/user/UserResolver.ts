@@ -53,8 +53,8 @@ class UserResolver {
     return palettes;
   }
 
-  @Directive('@authenticated')
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
+  @Directive('@authenticated')
   @Query(() => [User])
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
     try {
