@@ -94,7 +94,7 @@ class PaletteResolver {
     }
 
     if (palette.userId !== user?.id) {
-      throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+      throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
     }
 
     return palette;
@@ -145,7 +145,7 @@ class PaletteResolver {
     }
 
     if (palette.userId !== user?.id) {
-      throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+      throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
     }
 
     await prisma.palette.delete({
@@ -174,7 +174,7 @@ class PaletteResolver {
       }
 
       if (palette?.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       //* Grab all devices
@@ -188,11 +188,11 @@ class PaletteResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
+        throw new UserInputError(JSON.stringify(userErrors.noDevices));
       }
 
       if (devices[0].userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       //* Make update calls to Nanoleaf devices
@@ -241,7 +241,7 @@ class PaletteResolver {
       }
 
       if (palette.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       //* Grab all devices
@@ -261,7 +261,7 @@ class PaletteResolver {
       }
 
       if (device.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       //* Handle errors for auth token
@@ -305,7 +305,7 @@ class PaletteResolver {
       }
 
       if (palette.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       //* Grab all devices
@@ -380,7 +380,7 @@ class PaletteResolver {
       }
 
       if (device.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       const {
@@ -444,7 +444,7 @@ class PaletteResolver {
       }
 
       if (palette.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       if (input.shouldUpdateDevices) {
@@ -463,7 +463,7 @@ class PaletteResolver {
 
             if (userId !== user?.id) {
               throw new ForbiddenError(
-                JSON.stringify(userErrors.userNotAuthorized)
+                JSON.stringify(userErrors.notAuthorized)
               );
             }
 
@@ -522,7 +522,7 @@ class PaletteResolver {
       }
 
       if (palette.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       if (!palette.devices.length) {
@@ -541,7 +541,7 @@ class PaletteResolver {
 
             if (userId !== user?.id) {
               throw new ForbiddenError(
-                JSON.stringify(userErrors.userNotAuthorized)
+                JSON.stringify(userErrors.notAuthorized)
               );
             }
 

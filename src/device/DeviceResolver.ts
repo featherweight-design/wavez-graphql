@@ -134,7 +134,7 @@ class DeviceResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
+        throw new UserInputError(JSON.stringify(userErrors.noDevices));
       }
 
       return devices;
@@ -165,7 +165,7 @@ class DeviceResolver {
       }
 
       if (device.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       return device;
@@ -196,7 +196,7 @@ class DeviceResolver {
       }
 
       if (device.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       return id;
@@ -220,11 +220,11 @@ class DeviceResolver {
       });
 
       if (!devices.length) {
-        throw new UserInputError(JSON.stringify(userErrors.userNoDevices));
+        throw new UserInputError(JSON.stringify(userErrors.noDevices));
       }
 
       if (devices[0].userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
@@ -269,7 +269,7 @@ class DeviceResolver {
       }
 
       if (device.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       if (!device.nanoleafAuthToken) {
@@ -314,7 +314,7 @@ class DeviceResolver {
       }
 
       if (devices[0].userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       devices.forEach(async ({ id, ip, nanoleafAuthToken }) => {
@@ -360,7 +360,7 @@ class DeviceResolver {
       }
 
       if (foundDevice.userId !== user?.id) {
-        throw new ForbiddenError(JSON.stringify(userErrors.userNotAuthorized));
+        throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
       const device = await prisma.device.update({

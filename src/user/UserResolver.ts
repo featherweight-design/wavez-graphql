@@ -88,7 +88,7 @@ class UserResolver {
       });
 
       if (doesUserExist) {
-        throw new UserInputError(JSON.stringify(errors.userAlreadyExists));
+        throw new UserInputError(JSON.stringify(errors.alreadyExists));
       }
 
       //* Check if access key exists
@@ -161,7 +161,7 @@ class UserResolver {
       });
 
       if (!user) {
-        throw new UserInputError(JSON.stringify(errors.userNotFound));
+        throw new UserInputError(JSON.stringify(errors.notFound));
       }
 
       const token = createToken(user);
