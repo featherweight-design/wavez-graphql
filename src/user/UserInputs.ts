@@ -1,5 +1,5 @@
 import { Role } from '.prisma/client';
-import { Field, InputType } from 'type-graphql';
+import { Field, InputType, Int } from 'type-graphql';
 
 import { RoleEnum } from 'types';
 
@@ -22,6 +22,9 @@ class UpdateUserInput {
 
   @Field(() => RoleEnum, { nullable: true })
   role?: Role;
+
+  @Field(() => Number, { nullable: true })
+  invites?: number;
 }
 
 export { CreateUserInput, UpdateUserInput };
