@@ -7,15 +7,15 @@ import { Context, RoleEnum } from 'types';
 import { User } from 'user';
 import { errors as userErrors } from 'user/definitions';
 import AccessKey from './AccessKey';
-import { constants, errors } from './definitions';
+import { constants } from './definitions';
 import { validateNewAccessKey } from './utilities';
 
 const { SENDGRID_INVITE_TEMPLATE_ID, WAVEZ_FROM_EMAIL } = constants;
 
 @Resolver(AccessKey)
 class AccessKeyResolver {
-  @Directive('@authenticated')
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
+  @Directive('@authenticated')
   @Mutation(() => AccessKey)
   async createAccessKey(
     @Arg('email') email: string,
@@ -42,23 +42,19 @@ class AccessKeyResolver {
     }
   }
 
-  @Directive('@authenticated')
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
-  @Mutation(() => AccessKey)
+  @Directive('@authenticated')
+  @Mutation(() => Boolean)
   async deleteAccessKeyById(
     @Arg('id') id: string,
     @Ctx() { prisma }: Context
-  ): Promise<string> {
+  ): Promise<boolean> {
     try {
-      const accessKey = await prisma.accessKey.delete({
+      await prisma.accessKey.delete({
         where: { id },
       });
 
-      if (!accessKey) {
-        throw new UserInputError(JSON.stringify(errors.notFound));
-      }
-
-      return id;
+      return true;
     } catch (error) {
       console.error(error);
 
@@ -66,8 +62,8 @@ class AccessKeyResolver {
     }
   }
 
-  @Directive('@authenticated')
   @Directive(`@authorized(role: ${RoleEnum.SUPPORTER})`)
+  @Directive('@authenticated')
   @Mutation(() => Boolean)
   async inviteByEmail(
     @Arg('email') email: string,
