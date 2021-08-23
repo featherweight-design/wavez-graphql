@@ -33,10 +33,10 @@ class AuthenticationDirective extends SchemaDirectiveVisitor {
     field.resolve = (
       root,
       args,
-      context,
+      context: Context,
       info
     ): GraphQLFieldResolver<typeof root, typeof context> => {
-      if (!(context as Context).user) {
+      if (!context.user) {
         // If the user isn't there throw an error
         throw new AuthenticationError(
           JSON.stringify(userErrors.notAuthenticated)
