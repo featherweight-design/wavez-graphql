@@ -17,6 +17,12 @@ const errors: Record<string, ErrorResponse> = {
     message: 'Wrong email provided',
     friendlyMessage: 'Incorrect email provided with access key',
   },
+  alreadyExists: {
+    status: 400,
+    message: 'Email already has an access key',
+    friendlyMessage:
+      'An access key has already been sent to this email address',
+  },
 };
 
 export default errors;
