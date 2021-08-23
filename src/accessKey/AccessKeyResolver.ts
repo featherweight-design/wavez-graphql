@@ -76,6 +76,11 @@ class AccessKeyResolver {
     try {
       await validateNewAccessKey(prisma, email);
 
+      //* Check if user has invites left
+      if (!user?.invites) {
+        throw new UserInputError(JSON.stringify(userErrors.noInvites));
+      }
+
       //* Create access key
       const expireAt = dayjs().add(3, 'day').toISOString();
 
@@ -83,7 +88,7 @@ class AccessKeyResolver {
         data: {
           email,
           expireAt,
-          userId: (user as User).id,
+          userId: user.id,
         },
       });
 
@@ -104,6 +109,16 @@ class AccessKeyResolver {
 
       //* Send message
       await sgMail.send(message);
+
+      //* Decrement user invites by one
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          invites: user.invites - 1,
+        },
+      });
 
       return true;
     } catch (error) {
