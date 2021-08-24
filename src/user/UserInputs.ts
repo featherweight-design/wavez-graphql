@@ -1,5 +1,5 @@
 import { Role } from '.prisma/client';
-import { Field, InputType } from 'type-graphql';
+import { Field, ID, InputType } from 'type-graphql';
 
 import { RoleEnum } from 'types';
 
