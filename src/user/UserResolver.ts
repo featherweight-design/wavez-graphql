@@ -14,7 +14,11 @@ import { Device } from 'device';
 import { Context, RoleEnum } from 'types';
 import { errors as accessKeyErrors } from 'accessKey/definitions';
 import { SignInResponse, User } from './User';
-import { CreateUserInput, UpdateUserInput } from './UserInputs';
+import {
+  CreateUserInput,
+  UpdateUserAdminInput,
+  UpdateUserInput,
+} from './UserInputs';
 import { Palette } from 'palettes';
 import { UserInputError } from 'apollo-server';
 import { errors } from './definitions';
@@ -181,9 +185,32 @@ class UserResolver {
     @Ctx() { prisma, user }: Context
   ): Promise<User> {
     try {
-      const updatedUser = prisma.user.update({
+      const updatedUser = await prisma.user.update({
         where: {
           id: (user as User).id,
+        },
+        data: input,
+      });
+
+      return updatedUser;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
+  @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
+  @Directive('@authenticated')
+  @Mutation(() => User)
+  async updateUserById(
+    @Arg('input') input: UpdateUserAdminInput,
+    @Ctx() { prisma }: Context
+  ): Promise<User> {
+    try {
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: input.id,
         },
         data: input,
       });
