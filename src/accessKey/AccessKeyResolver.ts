@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server';
-import { Arg, Ctx, Directive, Mutation, Resolver } from 'type-graphql';
+import { Arg, Ctx, Directive, Mutation, Query, Resolver } from 'type-graphql';
 import dayjs from 'dayjs';
 import sgMail, { MailDataRequired } from '@sendgrid/mail';
 
@@ -7,13 +7,49 @@ import { Context, RoleEnum } from 'types';
 import { User } from 'user';
 import { errors as userErrors } from 'user/definitions';
 import AccessKey from './AccessKey';
-import { constants } from './definitions';
+import { constants, errors } from './definitions';
 import { validateNewAccessKey } from './utilities';
 
 const { SENDGRID_INVITE_TEMPLATE_ID, WAVEZ_FROM_EMAIL } = constants;
 
 @Resolver(AccessKey)
 class AccessKeyResolver {
+  @Query(() => Boolean)
+  async findAccessKeyByEmail(
+    @Arg('email') email: string,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    try {
+      const foundAccessKey = await prisma.accessKey.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!foundAccessKey) {
+        throw new UserInputError(JSON.stringify(errors.notFound));
+      }
+
+      //* Check if access key is expired (3 days from creation)
+      if (dayjs().isAfter(dayjs(foundAccessKey.expireAt))) {
+        //* Delete access key if expired
+        await prisma.accessKey.delete({
+          where: {
+            id: foundAccessKey.id,
+          },
+        });
+
+        throw new UserInputError(JSON.stringify(errors.expired));
+      }
+
+      return true;
+    } catch (error) {
+      console.error(error);
+
+      throw error;
+    }
+  }
+
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
   @Directive('@authenticated')
   @Mutation(() => AccessKey)
