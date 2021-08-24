@@ -22,9 +22,21 @@ class UpdateUserInput {
 
   @Field(() => RoleEnum, { nullable: true })
   role?: Role;
+}
+
+@InputType()
+class UpdateUserAdminInput {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => String, { nullable: true })
+  name?: string;
+
+  @Field(() => RoleEnum, { nullable: true })
+  role?: Role;
 
   @Field(() => Number, { nullable: true })
   invites?: number;
 }
 
-export { CreateUserInput, UpdateUserInput };
+export { CreateUserInput, UpdateUserInput, UpdateUserAdminInput };
