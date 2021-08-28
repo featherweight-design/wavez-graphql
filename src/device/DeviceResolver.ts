@@ -18,8 +18,10 @@ import { Context, DeviceMacSubstringByType } from 'types';
 import { User } from 'user';
 import { updateCurrentState } from 'nanoleaf/utils';
 import { errors as userErrors } from 'user/definitions';
-import { errors as deviceErrors } from './definitions';
+import { copy, errors as deviceErrors } from './definitions';
 import { Device, WifiDevice } from './Device';
+
+const { descriptions } = copy;
 
 const findeDeviceByType = (device: WifiDevice, macSubstring: string) =>
   device.mac.toLocaleLowerCase().includes(macSubstring.toLocaleLowerCase());
@@ -86,7 +88,8 @@ class DeviceResolver {
     return user;
   }
 
-  @Query(() => [WifiDevice])
+  @Directive('authenticated')
+  @Query(() => [WifiDevice], { description: descriptions.discoverWifiDevices })
   async discoverWifiDevices(): Promise<WifiDevice[]> {
     try {
       const devices = await find();
@@ -99,7 +102,10 @@ class DeviceResolver {
     }
   }
 
-  @Query(() => [WifiDevice])
+  @Directive('authenticated')
+  @Query(() => [WifiDevice], {
+    description: descriptions.discoverWifiDevicesByType,
+  })
   async discoverWifiDevicesByType(
     @Arg('type') type: DeviceType
   ): Promise<WifiDevice[]> {
@@ -121,7 +127,7 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Query(() => [Device])
+  @Query(() => [Device], { description: descriptions.getAllDevicesByUserId })
   async getAllDevicesByUserId(
     @Ctx() { prisma, user }: Context
   ): Promise<Prisma.Device[]> {
@@ -146,7 +152,10 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Query(() => Device, { nullable: true })
+  @Query(() => Device, {
+    description: descriptions.getDeviceById,
+    nullable: true,
+  })
   async getDeviceById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
@@ -177,11 +186,11 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => String)
+  @Mutation(() => String, { description: descriptions.deleteDeviceById })
   async deleteDeviceById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
-  ): Promise<string> {
+  ): Promise<boolean> {
     try {
       const device = await prisma.device.delete({
         where: {
@@ -199,7 +208,7 @@ class DeviceResolver {
         throw new ForbiddenError(JSON.stringify(userErrors.notAuthorized));
       }
 
-      return id;
+      return true;
     } catch (error) {
       console.error(error);
 
@@ -208,7 +217,9 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description: descriptions.updateAllDevicePowerByUserId,
+  })
   async updateAllDevicePowerByUserId(
     @Arg('isOn') isOn: boolean,
     @Ctx() { prisma, user }: Context
@@ -250,7 +261,7 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: descriptions.updateDevicePowerById })
   async updateDevicePowerById(
     @Arg('id') id: string,
     @Arg('isOn') isOn: boolean,
@@ -295,7 +306,9 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description: descriptions.updateDevicePowerByType,
+  })
   async updateDevicePowerByType(
     @Arg('type') type: DeviceType,
     @Arg('isOn') isOn: boolean,
@@ -340,7 +353,10 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Device, { nullable: true })
+  @Mutation(() => Device, {
+    description: descriptions.updateDeviceNameById,
+    nullable: true,
+  })
   async updateDeviceNameById(
     @Arg('id') id: string,
     @Arg('name') name: string,
