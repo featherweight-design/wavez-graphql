@@ -2,17 +2,22 @@ import { UserInputError } from 'apollo-server-errors';
 import { Arg, Ctx, Directive, Mutation, Resolver } from 'type-graphql';
 
 import { Context } from 'types';
+import { User } from 'user';
 import { NanoleafStateInput } from 'nanoleaf/NanoleafInputs';
 import { updateCurrentState } from 'nanoleaf/utils';
 import { errors as deviceErrors } from 'device/definitions';
 import { errors as userErrors } from 'user/definitions';
 import { NanoleafState } from './NanoleafState';
-import { User } from 'user';
+import { copy } from '../definitions';
+
+const { descriptions } = copy;
 
 @Resolver(NanoleafState)
 class NanoleafStateResolver {
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description: descriptions.updateCurrentStateByDeviceId,
+  })
   async updateCurrentStateByDeviceId(
     @Arg('deviceId') deviceId: string,
     @Arg('stateInput') stateInput: NanoleafStateInput,
@@ -49,7 +54,7 @@ class NanoleafStateResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: descriptions.updateCurrentStateAll })
   async updateCurrentStateAll(
     @Arg('stateInput') stateInput: NanoleafStateInput,
     @Ctx() { prisma, user }: Context
