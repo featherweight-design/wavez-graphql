@@ -7,14 +7,15 @@ import { Context, RoleEnum } from 'types';
 import { User } from 'user';
 import { errors as userErrors } from 'user/definitions';
 import AccessKey from './AccessKey';
-import { constants, errors } from './definitions';
+import { constants, copy, errors } from './definitions';
 import { validateNewAccessKey } from './utilities';
 
 const { SENDGRID_INVITE_TEMPLATE_ID, WAVEZ_FROM_EMAIL } = constants;
+const { descriptions } = copy;
 
 @Resolver(AccessKey)
 class AccessKeyResolver {
-  @Query(() => Boolean)
+  @Query(() => Boolean, { description: descriptions.findAccessKeyByEmail })
   async findAccessKeyByEmail(
     @Arg('email') email: string,
     @Ctx() { prisma }: Context
@@ -52,7 +53,7 @@ class AccessKeyResolver {
 
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
   @Directive('@authenticated')
-  @Mutation(() => AccessKey)
+  @Mutation(() => AccessKey, { description: descriptions.createAccessKey })
   async createAccessKey(
     @Arg('email') email: string,
     @Ctx() { prisma, user }: Context
@@ -80,7 +81,7 @@ class AccessKeyResolver {
 
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: descriptions.deleteAccessKeyById })
   async deleteAccessKeyById(
     @Arg('id') id: string,
     @Ctx() { prisma }: Context
@@ -100,7 +101,7 @@ class AccessKeyResolver {
 
   @Directive(`@authorized(role: ${RoleEnum.SUPPORTER})`)
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: descriptions.inviteByEmail })
   async inviteByEmail(
     @Arg('email') email: string,
     @Ctx() { prisma, user }: Context
