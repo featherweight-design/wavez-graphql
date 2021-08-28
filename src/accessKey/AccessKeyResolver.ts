@@ -10,7 +10,7 @@ import AccessKey from './AccessKey';
 import { constants, copy, errors } from './definitions';
 import { validateNewAccessKey } from './utilities';
 
-const { SENDGRID_INVITE_TEMPLATE_ID, WAVEZ_FROM_EMAIL } = constants;
+const { SENDGRID_INVITE_TEMPLATE_ID } = constants;
 const { descriptions } = copy;
 
 @Resolver(AccessKey)
@@ -131,7 +131,7 @@ class AccessKeyResolver {
       //* Build SG email message
       const message: MailDataRequired = {
         to: email,
-        from: WAVEZ_FROM_EMAIL,
+        from: process.env.WAVEZ_FROM_EMAIL,
         templateId: SENDGRID_INVITE_TEMPLATE_ID,
         dynamicTemplateData: {
           accessKey: accessKey.key,
