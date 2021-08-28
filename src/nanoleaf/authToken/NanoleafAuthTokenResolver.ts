@@ -13,7 +13,7 @@ import { Device } from 'device';
 import { Context } from 'types';
 import { getPaletteSyncConfig } from 'palettes/utils';
 import { User } from 'user';
-import { errors } from '../definitions';
+import { copy, errors } from '../definitions';
 import NanoleafAuthToken from './NanoleafAuthToken';
 import { AuthenticateNewUserInput } from '../NanoleafInputs';
 import {
@@ -21,6 +21,8 @@ import {
   doesDeviceExistsByIpAddress,
   getAllPanelProperties,
 } from '../utils';
+
+const { descriptions } = copy;
 
 @Resolver(NanoleafAuthToken)
 class NanoleafAuthTokenResolver {
@@ -39,7 +41,9 @@ class NanoleafAuthTokenResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => String)
+  @Mutation(() => String, {
+    description: descriptions.authenticateWithDeviceByUserId,
+  })
   async authenticateWithDeviceByUserId(
     @Ctx() { prisma, user }: Context,
     @Arg('input') input: AuthenticateNewUserInput,
@@ -106,11 +110,13 @@ class NanoleafAuthTokenResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => String)
+  @Mutation(() => Boolean, {
+    description: descriptions.deleteNanoleafAuthToken,
+  })
   async deleteNanoleafAuthToken(
     @Arg('id') id: string,
     @Ctx() { prisma }: Context
-  ): Promise<string> {
+  ): Promise<boolean> {
     try {
       const nanoleafAuthToken = await prisma.nanoleafAuthToken.delete({
         where: { id },
@@ -120,7 +126,7 @@ class NanoleafAuthTokenResolver {
         throw new UserInputError(JSON.stringify(errors.authTokenNotFound(id)));
       }
 
-      return id;
+      return true;
     } catch (error) {
       console.error(error);
 

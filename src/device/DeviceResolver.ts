@@ -186,7 +186,7 @@ class DeviceResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => String, { description: descriptions.deleteDeviceById })
+  @Mutation(() => Boolean, { description: descriptions.deleteDeviceById })
   async deleteDeviceById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
