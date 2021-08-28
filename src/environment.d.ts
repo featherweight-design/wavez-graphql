@@ -5,6 +5,7 @@ declare global {
       SENDGRID_API_KEY: string;
       NODE_ENV: 'development' | 'production';
       PORT?: string;
+      WAVEZ_FROM_EMAIL: string;
     }
   }
 }
