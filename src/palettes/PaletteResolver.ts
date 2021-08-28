@@ -29,7 +29,9 @@ import {
   UpdatePaletteNameInput,
 } from './PaletteInputs';
 import { getPaletteSyncConfig, validateColorJson } from './utils';
-import { errors } from './definitions';
+import { copy, errors } from './definitions';
+
+const { descriptions } = copy;
 
 @Resolver(Palette)
 class PaletteResolver {
@@ -64,7 +66,7 @@ class PaletteResolver {
   }
 
   @Directive('@authenticated')
-  @Query(() => [Palette])
+  @Query(() => [Palette], { description: descriptions.getAllPalettesByUserId })
   async getAllPalettesByUserId(
     @Ctx() { prisma, user }: Context
   ): Promise<Palette[]> {
@@ -78,7 +80,10 @@ class PaletteResolver {
   }
 
   @Directive('@authenticated')
-  @Query(() => Palette, { nullable: true })
+  @Query(() => Palette, {
+    description: descriptions.getPaletteById,
+    nullable: true,
+  })
   async getPaletteById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
@@ -100,8 +105,9 @@ class PaletteResolver {
     return palette;
   }
 
+  // TODO: Update to create with Nanoleaf
   @Directive('@authenticated')
-  @Mutation(() => Palette)
+  @Mutation(() => Palette, { description: descriptions.createPalette })
   async createPalette(
     @Arg('input') input: CreatePaletteInput,
     @Ctx() { prisma, user }: Context
@@ -128,8 +134,9 @@ class PaletteResolver {
     }
   }
 
+  // TODO: Update to create with Nanoleaf
   @Directive('@authenticated')
-  @Mutation(() => String)
+  @Mutation(() => String, { description: descriptions.deletePaletteById })
   async deletePaletteById(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
@@ -155,9 +162,13 @@ class PaletteResolver {
     return id;
   }
 
+  // TODO: Update to sync with other device types
+  //* Note: Only syncs with Nanoleaf currently
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
-  async setPaletteToAllDevicesByUserId(
+  @Mutation(() => Boolean, {
+    description: descriptions.setPaletteToAllDevices,
+  })
+  async setPaletteToAllDevices(
     @Arg('id') id: string,
     @Ctx() { prisma, user }: Context
   ): Promise<boolean> {
@@ -223,7 +234,7 @@ class PaletteResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, { description: descriptions.setPaletteToDeviceById })
   async setPaletteToDeviceById(
     @Arg('input') input: SetPaletteByDeviceIdInput,
     @Ctx() { prisma, user }: Context
@@ -287,7 +298,9 @@ class PaletteResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Boolean)
+  @Mutation(() => Boolean, {
+    description: descriptions.setPaletteToDeviceByType,
+  })
   async setPaletteToDeviceByType(
     @Arg('input') input: SetPaletteByDeviceType,
     @Ctx() { prisma, user }: Context
@@ -351,8 +364,11 @@ class PaletteResolver {
     }
   }
 
+  // TODO: Update to sync with other device types
   @Directive('@authenticated')
-  @Mutation(() => [Palette])
+  @Mutation(() => [Palette], {
+    description: descriptions.syncPalettesByDeviceId,
+  })
   async syncPalettesByDeviceId(
     @Arg('deviceId') deviceId: string,
     @Ctx() { prisma, user }: Context
@@ -419,7 +435,7 @@ class PaletteResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Palette)
+  @Mutation(() => Palette, { description: descriptions.updatePaletteNameById })
   async updatePaletteNameById(
     @Arg('input') input: UpdatePaletteNameInput,
     @Ctx() { prisma, user }: Context
@@ -497,7 +513,9 @@ class PaletteResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => Palette)
+  @Mutation(() => Palette, {
+    description: descriptions.updatePaletteColorsById,
+  })
   async updatePaletteColorsById(
     @Arg('input') input: UpdatePaletteColorsInput,
     @Ctx() { prisma, user }: Context

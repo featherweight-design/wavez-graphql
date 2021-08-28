@@ -1,3 +1,4 @@
+import copy from './copy';
 import errors from './errors';
 
-export { errors };
+export { copy, errors };
