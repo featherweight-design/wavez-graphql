@@ -155,6 +155,7 @@ class AccessKeyResolver {
 
       return true;
     } catch (error) {
+      // TODO: Update error handling to delete access key if SG fails
       console.error(error);
 
       throw error;
