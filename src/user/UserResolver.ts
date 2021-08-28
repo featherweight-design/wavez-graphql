@@ -21,7 +21,9 @@ import {
 } from './UserInputs';
 import { Palette } from 'palettes';
 import { UserInputError } from 'apollo-server';
-import { errors } from './definitions';
+import { copy, errors } from './definitions';
+
+const { descriptions } = copy;
 
 @Resolver(User)
 class UserResolver {
@@ -59,7 +61,7 @@ class UserResolver {
 
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
   @Directive('@authenticated')
-  @Query(() => [User])
+  @Query(() => [User], { description: descriptions.getAllUsers })
   async getAllUsers(@Ctx() { prisma }: Context): Promise<User[]> {
     try {
       const users = await prisma.user.findMany();
@@ -73,12 +75,12 @@ class UserResolver {
   }
 
   @Directive('@authenticated')
-  @Query(() => User)
+  @Query(() => User, { description: descriptions.getCurrentUser })
   getCurrentUser(@Ctx() { user }: Context): User {
     return user as User;
   }
 
-  @Mutation(() => SignInResponse)
+  @Mutation(() => SignInResponse, { description: descriptions.signUp })
   async signUp(
     @Arg('input') input: CreateUserInput,
     @Ctx() { createToken, prisma }: Context
@@ -152,7 +154,7 @@ class UserResolver {
     }
   }
 
-  @Mutation(() => SignInResponse)
+  @Mutation(() => SignInResponse, { description: descriptions.signIn })
   async signIn(
     @Arg('email') email: string,
     @Ctx() { createToken, prisma }: Context
@@ -179,7 +181,7 @@ class UserResolver {
   }
 
   @Directive('@authenticated')
-  @Mutation(() => User)
+  @Mutation(() => User, { description: descriptions.updateUser })
   async updateUser(
     @Arg('input') input: UpdateUserInput,
     @Ctx() { prisma, user }: Context
@@ -202,7 +204,7 @@ class UserResolver {
 
   @Directive(`@authorized(role: ${RoleEnum.ADMIN})`)
   @Directive('@authenticated')
-  @Mutation(() => User)
+  @Mutation(() => User, { description: descriptions.updateUserById })
   async updateUserById(
     @Arg('input') input: UpdateUserAdminInput,
     @Ctx() { prisma }: Context
