@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { PrismaClient } from '@prisma/client';
 import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server';
+import { ApolloServer as ApolloServerLambda } from 'apollo-server-lambda';
 import dotenv from 'dotenv';
 import { buildSchemaSync } from 'type-graphql';
 
@@ -15,7 +16,6 @@ import { createToken, getUserFromToken } from 'utils';
 
 dotenv.config({ path: `${__dirname}/.env` });
 
-const PORT = process.env.PORT || 4000;
 const prisma = new PrismaClient();
 
 const schema = buildSchemaSync({
@@ -37,22 +37,35 @@ SchemaDirectiveVisitor.visitSchemaDirectives(schema, {
   authorized: AuthorizationDirective,
 });
 
-const server = new ApolloServer({
-  cors: {
-    allowedHeaders: 'Authorization',
-    credentials: true,
-    methods: 'POST',
-    origin: process.env.ORIGIN,
-  },
-  schema,
-  //* Prisma must be privided to other resolvers through context
-  context: async ({ req }): Promise<Context> => ({
-    prisma,
-    user: await getUserFromToken(prisma, req.headers.authorization),
-    createToken,
-  }),
-});
+const createLocalServer = (): typeof ApolloServer.prototype =>
+  new ApolloServer({
+    // cors: {
+    //   allowedHeaders: 'Authorization',
+    //   credentials: true,
+    //   methods: 'POST',
+    //   origin: process.env.ORIGIN,
+    // },
+    schema,
+    //* Prisma must be privided to other resolvers through context
+    context: async ({ req }): Promise<Context> => ({
+      prisma,
+      user: await getUserFromToken(prisma, req.headers.authorization),
+      createToken,
+    }),
+  });
 
-void server.listen(PORT, () =>
-  console.log(`🚀  Server running on http://localhost:${PORT}/graphql`)
-);
+const createLambdaServer = (): typeof ApolloServerLambda.prototype =>
+  new ApolloServerLambda({
+    schema,
+    //* Prisma must be privided to other resolvers through context
+    context: async ({ express }): Promise<Context> => ({
+      prisma,
+      user: await getUserFromToken(prisma, express.req.headers.authorization),
+      createToken,
+    }),
+  });
+
+export { createLambdaServer, createLocalServer };
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+// exports.graphqlHandler = server.createHandler();
