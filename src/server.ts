@@ -38,6 +38,12 @@ SchemaDirectiveVisitor.visitSchemaDirectives(schema, {
 });
 
 const server = new ApolloServer({
+  cors: {
+    allowedHeaders: 'Authorization',
+    credentials: true,
+    methods: 'POST',
+    origin: process.env.ORIGIN,
+  },
   schema,
   //* Prisma must be privided to other resolvers through context
   context: async ({ req }): Promise<Context> => ({
