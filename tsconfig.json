@@ -25,7 +25,7 @@
     "skipLibCheck": true
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts", "./prisma/**/*.ts"],
+  "include": ["./src/**/*.ts", "./prisma/**/*.ts", "./functions/**/*.ts"],
   "ts-node": {
     "files": true,
     "require": ["tsconfig-paths/register"]
