@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "client": "cd client && yarn start",
+    "server": "ts-node-dev --respawn -r tsconfig-paths/register src/index.ts",
+    "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
+    "postinstall": "cd client && yarn install",
     "bundle": "cpx 'src/**/*' functions/bundle",
     "clean": "rm -rf node_modules yarn.lock && yarn install",
-    "start": "ts-node-dev --respawn -r tsconfig-paths/register src/index.ts",
-    "generate": "npx prisma generate",
     "format": "prettier --write \"src/**/*.ts?(x)\"",
     "lint": "eslint './src/**/*.{js,ts}' --fix",
+    "generate": "npx prisma generate",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:reset": "npx prisma migrate reset",
     "studio": "npx prisma studio"
